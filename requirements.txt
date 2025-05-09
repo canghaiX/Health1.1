@@ -1,0 +1,14 @@
+先安装必要的依赖
+//应用
+pip install fastapi
+//启动
+pip install uvicorn
+// 连接mysql
+pip install sqlalchemy
+pip install pymysql
+// 拦截器
+
+uvicorn~=0.34.2
+fastapi~=0.115.12
+SQLAlchemy~=2.0.40
+pydantic~=2.11.4
