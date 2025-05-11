@@ -1,18 +1,23 @@
-from fastapi import APIRouter
+import json
+from urllib import request
 
+from fastapi import APIRouter
 from app.schemas.userSchemas import UserIn, UserOut
+from app.services.dealWithJson import json_test
 from app.services.userServices import UserService
 
 userRouter = APIRouter()
-
 
 @userRouter.get("/getUserList")
 async def getUserList():
     return {"users": [{}]}
 
-
-@userRouter.post("/loginIn")
-async def loginIn(user: UserIn):
+#处理json
+@userRouter.post("/loginIn",methods=["POST"])
+async def loginIn():
+    data=request.get_json(force=True)
+    data1=json.loads(data)
+    json_test(data1)
     return {"message": ""}
 
 
