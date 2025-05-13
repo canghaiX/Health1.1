@@ -44,6 +44,7 @@ CREATE TABLE `hra_data`  (
   `hra_json_data` varchar(1023) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'hra报告的json数据',
   `upload_file_id` int(11) NOT NULL COMMENT 'uploaded_files表的id，外键',
   `user_id` int(11) NOT NULL COMMENT 'users表的id，作外键（可能多余）',
+  `equipment_id` int(11) NOT NULL COMMENT '设备id',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
