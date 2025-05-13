@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>豆包智能对话</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 24px;
+        }
+        .button-group {
+            margin-bottom: 24px;
+            display: flex;
+            gap: 12px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        button:disabled {
+            background: #e0e0e0;
+            color: #9e9e9e;
+            cursor: not-allowed;
+        }
+        .create-btn {
+            background: #2196F3;
+            color: white;
+        }
+        .create-btn:hover:not(:disabled) {
+            background: #1976D2;
+        }
+        .connect-btn {
+            background: #4CAF50;
+            color: white;
+        }
+        .connect-btn:hover:not(:disabled) {
+            background: #388E3C;
+        }
+        .chat-box {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            min-height: 400px;
+            margin-bottom: 24px;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .message {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            word-wrap: break-word;
+        }
+        .user-message {
+            background: #e3f2fd;
+            margin-left: auto;
+        }
+        .bot-message {
+            background: #f5f5f5;
+            margin-right: auto;
+        }
+        .system-message {
+            background: #fff3cd;
+            margin: 0 auto;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #6d4c41;
+        }
+        .input-group {
+            display: flex;
+            gap: 12px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 0 2px rgba(33,150,243,0.1);
+        }
+        .send-btn {
+            background: #FF9800;
+            color: white;
+        }
+        .send-btn:hover:not(:disabled) {
+            background: #F57C00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="color: #2c3e50; margin-bottom: 24px;">豆包智能对话</h1>
+
+        <div class="button-group">
+            <button class="create-btn" id="createConversationBtn">创建新会话</button>
+            <button class="connect-btn" id="connectWebSocketBtn" disabled>建立连接</button>
+        </div>
+
+        <div class="chat-box" id="chatBox"></div>
+
+        <div class="input-group">
+            <input type="text" id="messageInput" placeholder="输入消息..." disabled>
+            <button class="send-btn" id="sendMessageBtn" disabled>发送</button>
+        </div>
+    </div>
+
+    <script>
+        const createBtn = document.getElementById('createConversationBtn');
+        const connectBtn = document.getElementById('connectWebSocketBtn');
+        const chatBox = document.getElementById('chatBox');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendMessageBtn');
+        let conversationId = null;
+        let ws = null;
+
+        // 渲染消息到聊天框
+        function renderMessage(content, type = 'bot') {
+            const msgDiv = document.createElement('div');
+            switch (type) {
+                case 'user':
+                    msgDiv.className = 'message user-message';
+                    break;
+                case 'system':
+                    msgDiv.className = 'message system-message';
+                    break;
+                default:
+                    msgDiv.className = 'message bot-message';
+            }
+            msgDiv.textContent = content;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight; // 自动滚动到底部
+        }
+
+        // 创建会话（调用后端创建接口）
+        createBtn.addEventListener('click', async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:8100/conversations/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                conversationId = data.conversation_id;
+                connectBtn.disabled = false;
+                renderMessage(`新会话创建成功（ID: ${conversationId}）`, 'system');
+            } catch (error) {
+                renderMessage(`创建会话失败: ${error.message}`, 'system');
+            }
+        });
+
+        // 建立WebSocket连接
+        connectBtn.addEventListener('click', () => {
+            if (!conversationId) {
+                renderMessage('请先创建会话', 'system');
+                return;
+            }
+            ws = new WebSocket(`ws://127.0.0.1:8100/ws/${conversationId}`);
+
+            ws.onopen = () => {
+                messageInput.disabled = false;
+                sendBtn.disabled = false;
+                renderMessage('连接成功！输入消息开始对话（10秒无操作将自动总结）', 'system');
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                switch (data.status) {
+                    case 'ended':
+                        renderMessage(`对话已结束，总结：${data.summary || '无总结'}`, 'system');
+                        ws.close();
+                        break;
+                    case 'timeout_warning':
+                        renderMessage(data.reply, 'system');
+                        break;
+                    default:
+                        renderMessage(data.reply); // 正常助手回复
+                }
+            };
+
+            ws.onclose = () => {
+                messageInput.disabled = true;
+                sendBtn.disabled = true;
+                connectBtn.disabled = false;
+                renderMessage('连接已关闭，可创建新会话或重新连接', 'system');
+            };
+
+            ws.onerror = (error) => {
+                renderMessage(`连接错误: ${error.message}`, 'system');
+            };
+        });
+
+        // 发送消息
+        sendBtn.addEventListener('click', () => {
+            const message = messageInput.value.trim();
+            if (!message || ws?.readyState !== WebSocket.OPEN) return;
+            ws.send(JSON.stringify({ message }));
+            renderMessage(message, 'user');
+            messageInput.value = '';
+        });
+
+        // 回车发送
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendBtn.click();
+        });
+    </script>
+</body>
+</html>
