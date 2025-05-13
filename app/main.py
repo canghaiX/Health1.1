@@ -1,10 +1,13 @@
 import uvicorn
 from fastapi import FastAPI
 from app.routers.userRouters import userRouter
+from app.routers import hrafile_router
 from app.utils.Interceptors import RequestInterceptor
 
 app = FastAPI()
 app.include_router(userRouter, prefix="/user", tags=["用户功能模块"])
+app.include_router(hrafile_router.router)
+
 app.add_middleware(RequestInterceptor)
 
 @app.get("/home")
