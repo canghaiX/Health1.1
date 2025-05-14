@@ -14,6 +14,37 @@ api_key='sk-7548be9550ca4f15a8b211deddbfc9e3'
 base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
 
 
+# 配置类
+class Settings():
+    # doubao平台模型调用
+    ARK_API_KEY = "9bddecca-cf12-4d34-9991-f190191bc420"
+    ARK_BASE_URL = "https://ark.cn-beijing.volces.com/api/v3"
+    DOUBA_MODEL = "doubao-1-5-thinking-pro-250415"
+
+    # 业务配置
+    TIMEOUT_SECONDS = 10
+    SUMMARY_PROMPT = "请用一段话总结以上对话内容："
+
+    # MySQL 数据库配置
+    MYSQL_HOST: str = "127.0.0.1"
+    MYSQL_PORT: int = 3306
+    MYSQL_USER: str = "root"
+    MYSQL_PASSWORD: str = "root"
+    MYSQL_DATABASE: str = "health"
+
+    @property
+    def database_url(self) -> str:
+        """生成SQLAlchemy连接URL"""
+        return (
+            f"mysql+pymysql://{self.MYSQL_USER}:{self.MYSQL_PASSWORD}"
+            f"@{self.MYSQL_HOST}:{self.MYSQL_PORT}/{self.MYSQL_DATABASE}"
+        )
+
+    class Config:
+        env_file = ".env"  # 可选：从.env文件加载配置
+        env_file_encoding = "utf-8"
+# mysql配置实例
+settings = Settings()  # 全局配置实例
 
 # 日志相关配置
 import logging
