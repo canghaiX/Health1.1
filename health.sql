@@ -1,9 +1,10 @@
-DROP TABLE IF EXISTS `conversation`;
-CREATE TABLE `conversation`  (
-  `UUID` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `Summary` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `userId` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  PRIMARY KEY (`UUID`) USING BTREE
+DROP TABLE IF EXISTS `conversations`;
+CREATE TABLE `conversations`  (
+  `uuid` varchar(36) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `summary` varchar(4000) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `user_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `create_time` datetime(0) NOT NULL,
+  PRIMARY KEY (`uuid`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 SET FOREIGN_KEY_CHECKS = 1;
