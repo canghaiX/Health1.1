@@ -1,271 +1,131 @@
-import uuid
-import threading
 import asyncio
-from contextlib import asynccontextmanager
-from typing import Dict, Optional, List
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Depends
-from openai import OpenAI
-from pydantic import BaseModel, Field
-from fastapi.middleware.cors import CORSMiddleware
-from app.config import Configuration
-import openai
+from datetime import datetime
+from uuid import uuid4
 
-'''
-这里调用的豆包的服务，后续还要进行修改
-'''
-# ========== 集中配置区域 ==========
-ARK_API_KEY = "doubao api key"
-if not ARK_API_KEY:
-    raise ValueError(
-        "ARK_API_KEY 未设置！请通过环境变量配置，示例：\n"
-        "Linux/macOS: export ARK_API_KEY='your_key'\n"
-        "Windows: set ARK_API_KEY=your_key"
-    )
-ARK_BASE_URL = "https://ark.cn-beijing.volces.com/api/v3"
-DOUBA_MODEL = "doubao-1-5-thinking-pro-250415"
-TIMEOUT_SECONDS = 10
-SUMMARY_PROMPT = "请用一句话总结以下对话内容："
+from fastapi import WebSocket, status, HTTPException
+from sqlalchemy.orm import Session
+from typing import List
+from starlette.websockets import WebSocketDisconnect  # 正确导入断开异常
+from app.models.conversation_model import ConversationSummary
+from app.utils.llm_client import get_llm_response  # LLM调用函数（需处理异常）
 
-# ========== 数据模型定义 ==========
-class MessageRequest(BaseModel):
-    message: str = Field(..., description="用户输入的消息内容")
 
-class MessageResponse(BaseModel):
-    reply: str = Field(..., description="模型生成的回复")
-    conversation_id: str = Field(..., description="会话ID")
-    status: str = Field(..., description="会话状态：active/timeout_warning/ended")
-    summary: Optional[str] = Field(None, description="对话总结（结束时返回）")
-
-class ConversationStatus:
-    ACTIVE = "active"
-    TIMEOUT_WARNING = "timeout_warning"
-    ENDED = "ended"
-
-# ========== 会话核心类 ==========
-class Conversation:
+class ConversationService:
     def __init__(self):
-        self.id = str(uuid.uuid4())
-        self.messages: List[str] = []
-        self.status = ConversationStatus.ACTIVE
-        self.timer: Optional[threading.Timer] = None
-
-client = OpenAI(
-    base_url=ARK_BASE_URL,
-    api_key=ARK_API_KEY
-)
-
-# ========== 会话管理器 ==========
-class ConversationManager:
-    def __init__(self, main_loop: asyncio.AbstractEventLoop):
-        self.main_loop = main_loop
-        self.conversations: Dict[str, Conversation] = {}
-        self.websockets: Dict[str, WebSocket] = {}
-
-    def create_conversation(self) -> Conversation:
-        conv = Conversation()
-        self.conversations[conv.id] = conv
-        return conv
-
-    def _get_conversation(self, conversation_id: str) -> Conversation:
-        if conversation_id not in self.conversations:
-            raise HTTPException(404, "会话不存在")
-        return self.conversations[conversation_id]
-
-    def _reset_timer(self, conversation_id: str) -> None:
-        conv = self._get_conversation(conversation_id)
-        if conv.timer:
-            conv.timer.cancel()
-        conv.timer = threading.Timer(
-            TIMEOUT_SECONDS, self._handle_timeout, [conversation_id]
-        )
-        conv.timer.daemon = True
-        conv.timer.start()
-
-    def _handle_timeout(self, conversation_id: str) -> None:
-        conv = self._get_conversation(conversation_id)
-        if conv.status == ConversationStatus.ACTIVE:
-            conv.status = ConversationStatus.TIMEOUT_WARNING
-            self._send_warning(conversation_id)
-            conv.timer = threading.Timer(
-                TIMEOUT_SECONDS, self._end_conversation, [conversation_id, True]
-            )
-            conv.timer.daemon = True
-            conv.timer.start()
-
-    def _send_warning(self, conversation_id: str) -> None:
-        ws = self.websockets.get(conversation_id)
-        if not ws:
-            return
-        response = MessageResponse(
-            reply="长时间未输入，对话将在10秒后结束。输入'结束'可立即终止对话",
-            conversation_id=conversation_id,
-            status=ConversationStatus.TIMEOUT_WARNING
-        )
-        asyncio.run_coroutine_threadsafe(
-            self._send_websocket_message(ws, response), self.main_loop
-        )
-
-    def _end_conversation(self, conversation_id: str, auto_end: bool = False) -> None:
-        if conversation_id not in self.conversations:
-            return
-        conv = self._get_conversation(conversation_id)
-        summary = self._generate_summary(conv.messages) if auto_end else None
-        response = MessageResponse(
-            reply="对话已结束" + (f"，总结：{summary}" if summary else ""),
-            conversation_id=conversation_id,
-            status=ConversationStatus.ENDED,
-            summary=summary
-        )
-
-        ws = self.websockets.pop(conversation_id, None)
-        if not ws:
-            del self.conversations[conversation_id]
-            return
-
-        async def safe_close():
-            try:
-                if ws.client_state == "connected":
-                    await self._send_websocket_message(ws, response)
-                await ws.close()
-            except Exception as e:
-                print(f"关闭连接异常: {e}")
-
-        asyncio.run_coroutine_threadsafe(safe_close(), self.main_loop)
-
-        if conv.timer:
-            conv.timer.cancel()
-        del self.conversations[conversation_id]
-
-    def _generate_summary(self, messages: List[str]) -> str:
-        if not messages:
-            return "无对话内容"
-        recent_messages = messages[-50:]
-        prompt = f"{SUMMARY_PROMPT}\n{''.join(recent_messages)}"
-        try:
-            response = client.chat.completions.create(
-                model=DOUBA_MODEL,
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=200,
-                temperature=0.7
-            )
-            return response.choices[0].message.content.strip()
-        except Exception as e:
-            print(f"总结生成失败: {e}")
-            return "总结生成失败"
-
-    def handle_message(self, conversation_id: str, message: str) -> MessageResponse:
-        conv = self._get_conversation(conversation_id)
-        if conv.status == ConversationStatus.TIMEOUT_WARNING:
-            if message.strip().lower() in ["结束", "exit", "quit"]:
-                self._end_conversation(conversation_id, auto_end=False)
-                return MessageResponse(
-                    reply="对话已手动结束",
-                    conversation_id=conversation_id,
-                    status=ConversationStatus.ENDED,
-                    summary=self._generate_summary(conv.messages)
-                )
-            conv.status = ConversationStatus.ACTIVE
-        self._reset_timer(conversation_id)
-        conv.messages.append(f"用户：{message}")
-        try:
-            reply = self._call_douba_through_ark(message)
-            conv.messages.append(f"助手：{reply}")
-        except Exception as e:
-            raise HTTPException(500, f"模型调用失败: {e}")
-        return MessageResponse(
-            reply=reply,
-            conversation_id=conversation_id,
-            status=conv.status
-        )
-
-    def _call_douba_through_ark(self, prompt: str) -> str:
-        try:
-            response = client.chat.completions.create(
-                model=DOUBA_MODEL,
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=2048,
-                temperature=0.8,
-                timeout=30
-            )
-            return response.choices[0].message.content.strip()
-        except openai.OpenAIError as e:
-            raise HTTPException(500, f"方舟API错误: {e.error.message}")
-        except Exception as e:
-            raise HTTPException(500, f"模型调用失败: {e}")
+        self.conversation_history: List[str] = []  # 仅存储LLM回复
 
     @staticmethod
-    async def _send_websocket_message(websocket: WebSocket, response: MessageResponse) -> None:
+    def create_conversation_id() -> str:
+        """生成唯一会话ID（UUID）"""
+        return str(uuid4())
+    async def handle_conversation_flow(
+            self,
+            websocket: WebSocket,
+            conversation_id: str,
+            user_id: str,
+            db: Session
+    ):
+        """处理完整对话流程（含超时和总结逻辑）"""
+        self.websocket = websocket
+        self.conversation_id = conversation_id
+        self.user_id = user_id
+        self.db = db
+
+        await websocket.accept()  # 接受WebSocket连接
+
         try:
-            await websocket.send_json(response.model_dump())
+            while True:
+                # 带10秒超时的消息接收（用户输入）
+                user_message = await self._receive_with_timeout()
+
+                # 调用LLM获取回复（异步包装）
+                llm_response = await self._call_llm(user_message)
+
+                # 记录LLM回复到历史（关键：仅存储LLM回复）
+                self._update_llm_responses(llm_response)
+
+                # 发送LLM回复给前端
+                await websocket.send_text(llm_response)
+
+        except (asyncio.TimeoutError, WebSocketDisconnect) as e:
+            # 超时或主动断开时触发清理
+            reason = "用户超时未输入" if isinstance(e, asyncio.TimeoutError) else "客户端断开"
+            await self._cleanup(reason)
+
         except Exception as e:
-            if "close message has been sent" in str(e):
-                pass
-            else:
-                print(f"消息发送失败: {e}")
+            # 其他异常处理（如LLM调用失败）
+            await self._cleanup(f"系统错误：{str(e)}")
 
-# ========== 应用生命周期与依赖注入 ==========
-class AppState:
-    def __init__(self, main_loop: asyncio.AbstractEventLoop):
-        self.conversation_manager = ConversationManager(main_loop)
+    async def _receive_with_timeout(self) -> str:
+        """带10秒超时的消息接收"""
+        try:
+            return await asyncio.wait_for(
+                self.websocket.receive_text(),
+                timeout=10.0  # 超时时间：10秒
+            )
+        except asyncio.TimeoutError:
+            raise  # 抛给外层处理
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    main_loop = asyncio.get_running_loop()
-    app.state = AppState(main_loop)
-    yield
-    for conv_id in list(app.state.conversation_manager.conversations.keys()):
-        app.state.conversation_manager._end_conversation(conv_id)
+    async def _call_llm(self, user_message: str) -> str:
+        """异步调用LLM（带异常处理）"""
+        try:
+            # 同步函数转异步（使用线程池避免阻塞事件循环）
+            loop = asyncio.get_event_loop()
+            return await loop.run_in_executor(None, get_llm_response, user_message)
+        except Exception as e:
+            raise RuntimeError(f"LLM调用失败：{str(e)}")
 
-app = FastAPI(title="豆包智能对话服务", lifespan=lifespan)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+    def _update_llm_responses(self, llm_response: str):
+        """记录LLM回复到内存列表（仅存储回复内容）"""
+        self.conversation_history.append(llm_response)
 
-def get_conversation_manager():
-    if not hasattr(app.state, "conversation_manager"):
-        raise HTTPException(503, "服务未初始化")
-    return app.state.conversation_manager
+    async def _cleanup(self, reason: str):
+        try:
 
-@app.post("/conversations/", response_model=MessageResponse)
-def create_conversation(
-    conversation_manager: ConversationManager = Depends(get_conversation_manager)
-):
-    conv = conversation_manager.create_conversation()
-    return MessageResponse(
-        reply="新会话创建成功，请开始对话",
-        conversation_id=conv.id,
-        status=ConversationStatus.ACTIVE
-    )
+            summary = await self._generate_summary()
+            self._save_summary_to_db(summary)
 
-@app.websocket("/ws/{conversation_id}")
-async def websocket_endpoint(
-    websocket: WebSocket,
-    conversation_id: str,
-    conversation_manager: ConversationManager = Depends(get_conversation_manager)
-):
-    await websocket.accept()
-    try:
-        conversation_manager._get_conversation(conversation_id)
-        conversation_manager.websockets[conversation_id] = websocket
-        conversation_manager._reset_timer(conversation_id)
-        while True:
-            data = await websocket.receive_json()
-            response = conversation_manager.handle_message(conversation_id, data["message"])
-            await conversation_manager._send_websocket_message(websocket, response)
-            if response.status == ConversationStatus.ENDED:
-                break
-    except WebSocketDisconnect:
-        print(f"客户端{conversation_id}主动断开连接")
-    except HTTPException as e:
-        await websocket.send_text(f"错误: {e.detail}")
-    finally:
-        if conversation_id in conversation_manager.websockets:
-            del conversation_manager.websockets[conversation_id]
+            # 1. 先发送总结消息（通过普通消息通道）
+            await self.websocket.send_text(f"总结：{summary}")
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8100)
+            # 2. 再关闭连接（原因字段控制在123字节内）
+            short_reason = f"对话结束（原因：{reason[:100]}）"  # 截断原因至100字节
+            await self.websocket.close(
+                code=status.WS_1000_NORMAL_CLOSURE,
+                reason=short_reason[:123]  # 确保不超过123字节
+            )
+
+        except Exception as e:
+            await self.websocket.close(
+                code=status.WS_1011_INTERNAL_ERROR,
+                reason="系统错误，请重试"[:123]
+            )
+
+    async def _generate_summary(self) -> str:
+        """基于LLM历史回复生成总结（调用LLM）"""
+        if not self.conversation_history:
+            return "无有效对话内容"
+
+        # 构造总结提示词（拼接LLM历史回复）
+        history_content = "\n".join([f"{msg}" for msg in self.conversation_history])
+        prompt = f"""请用简洁的中文总结以下LLM的回复内容：
+        {history_content}"""
+
+        # 调用LLM生成总结（异步处理）
+        return await self._call_llm(prompt)  # 复用LLM调用逻辑
+
+    def _save_summary_to_db(self, summary: str):
+        """写入总结到数据库（带事务控制）"""
+        try:
+            db_summary = ConversationSummary(
+                uuid=self.conversation_id,
+                summary=summary,
+                user_id=self.user_id,
+                create_time=datetime.now()
+            )
+            self.db.add(db_summary)
+            self.db.commit()  # 提交事务
+            self.db.refresh(db_summary)  # 可选：刷新对象获取数据库生成的字段
+        except Exception as e:
+            self.db.rollback()  # 异常时回滚
+            raise RuntimeError(f"数据库写入失败：{str(e)}")
