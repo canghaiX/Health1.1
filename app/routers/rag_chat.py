@@ -6,19 +6,19 @@ from config import get_logger
 from sse_starlette.sse import EventSourceResponse
 from typing import Optional
 import json
-from routers.knowledge_inter import retrieval
+from routers.rag_knowledge import retrieval
 
 from openai import AsyncOpenAI
 client = AsyncOpenAI(
     api_key="sk-7947b081778614c7fe1cda",
     base_url="https://compatible-mode/v1"
 )
-# 本地部署模型默认不需要 API key，可以留空或设置为 "EMPTY
-openai_api_key = "EMPTY"  # 如果"
-openai_api_base = "http://localhost:8000/v1"
+# # 本地部署模型默认不需要 API key，可以留空或设置为 "EMPTY
+# openai_api_key = "EMPTY"  # 如果"
+# openai_api_base = "http://localhost:8000/v1"
+# #本地部署模型需要path
+# model_path = 'qwen/Qwen/Qwen2___5-14B-Instruct'
 
-
-model_path = '/home/ysdx2025model/qwen/Qwen/Qwen2___5-14B-Instruct'
 router = APIRouter()
 
 logger = get_logger(__name__)
@@ -44,7 +44,7 @@ async def knowledge_base_chat(
     # 知识库问答接口
     
     async def event_generator(query,history,stream,modelName,temperature,kbId,limit):
-        logger.info(f"{kbId}zhishikununmber")
+        logger.info(f"{kbId}知识库编号")
         # 检索逻辑
         source = retrieval(kbId=kbId,query=query,limit=limit) 
         #logger.info(source)
