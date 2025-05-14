@@ -13,14 +13,11 @@ client = AsyncOpenAI(
     api_key="sk-7947b081778614c7fe1cda",
     base_url="https://compatible-mode/v1"
 )
-# 设置 OpenAI 的 API key 和 API base 来使用 vLLM 的 API server.
-openai_api_key = "EMPTY"  # 如果不需要 API key，可以留空或设置为 "EMPTY"
+# 本地部署模型默认不需要 API key，可以留空或设置为 "EMPTY
+openai_api_key = "EMPTY"  # 如果"
 openai_api_base = "http://localhost:8000/v1"
 
-#api_key="sk-762b0529add947b081778614c7fe1cda", 
-#base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
-#url = "http://localhost:8000/v1/chat/completions"
-#url = 'http://localhost:7001/generate_text/'
+
 model_path = '/home/ysdx2025model/qwen/Qwen/Qwen2___5-14B-Instruct'
 router = APIRouter()
 
