@@ -20,10 +20,10 @@ import logging
 import os
 from logging.handlers import RotatingFileHandler
 
-LOG_LEVEL = "DEBUG"  #记录所有级别的log
+LOG_LEVEL = logging.DEBUG  #记录所有级别的log
 LOG_DIR = LOGGER_DIR 
 LOG_FILE = "app.log"  
-MAX_LOG_SIZE = 50 * 1024 * 1024  # 10MB
+MAX_LOG_SIZE = 50 * 1024 * 1024  # 50MB
 BACKUP_COUNT = 10  # 保留的旧日志文件数量
 
 # 确保日志目录存在

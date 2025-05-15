@@ -1,5 +1,5 @@
 from fastapi import APIRouter,File,UploadFile
-from config import get_logger
+from app.config import get_logger
 import torch
 import json
 from transformers import AutoTokenizer, AutoModel
@@ -22,17 +22,22 @@ from pymilvus import (
 from fastapi import FastAPI,Body,HTTPException
 import os
 from typing import Optional
-import pdfplumber
 import shutil
-from pdfminer.converter import TextConverter
-from pdfminer.layout import LAParams
-from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
-from pdfminer.pdfpage import PDFPage
-from routers.chunk11 import process_markdown_file
+
+# #pdf解析处理用的包
+# import pdfplumber
+# from pdfminer.converter import TextConverter
+# from pdfminer.layout import LAParams
+# from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+# from pdfminer.pdfpage import PDFPage
+
+from app.utils.word2md import docx_to_markdown
+from app.utils.ragchunk import process_markdown_file
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 import requests
 import numpy as np
 from openai import OpenAI
+
 
 router = APIRouter()
 logger = get_logger(__name__)
@@ -42,20 +47,20 @@ client = OpenAI(
 )
 
 # 文件存储目录配置
-base_dir = "./knowledge_base"   #放docx
+base_dir = "/home/hjb/Health1.1/knowledge_base"   #放docx
 os.makedirs(base_dir, exist_ok=True)
-collection_mapping_dir = "./test/collection_mapping.json"
-# 准备嵌入模型
-# 指定本地模型路径
-model_path = "/home/ysdx2025/embedding_model"
+collection_mapping_dir = "/home/hjb/Health1.1/collection_mapping.json"
+
+# 指定本地嵌入模型路径
+model_path = "/home/hjb/dsft/bge-m3"
 #md解析路径
 output_dir = './file'
 #mineru解析url
 url = 'http://localhost:7000/parse-files/'
 
 # 加载模型和分词器
-tokenizer = AutoTokenizer.from_pretrained(model_path)
-model = AutoModel.from_pretrained(model_path)
+tokenizer = AutoTokenizer.from_pretrained(model_path,local_files_only = True)
+model = AutoModel.from_pretrained(model_path,local_files_only = True)
 model.eval()
 
 
@@ -212,7 +217,7 @@ def generate_valid_uuid():
 """
 
 # 连接 Milvus
-connections.connect(uri="./test/milvus.db")
+connections.connect(uri="/home/hjb/Health1.1/milvus.db")
 
 
 # 定义字段模式
@@ -626,76 +631,12 @@ def allowed_file(filename: str) -> bool:
     """检查文件扩展名是否合法"""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-"""
-#pdfplumber解析
-async def parse_file(file_path: str, extension: str) -> list[str]:
-    #解析不同格式文件为文本列表
-    texts = []
-    try:
-        if extension == 'txt':
-            with open(file_path, 'r', encoding='utf-8') as f:
-                texts = [f.read()]
-        
-        elif extension == 'pdf':
-            # 使用pdfplumber解析（更精准保留文本结构）
-            with pdfplumber.open(file_path) as pdf:
-                for page in pdf.pages:
-                    texts.append(page.extract_text())
-        
-        elif extension == 'docx':
-            doc = Document(file_path)
-            texts = [paragraph.text for paragraph in doc.paragraphs if paragraph.text.strip()]
-        
-        elif extension == 'doc':
-            # 注意：python-docx不支持.doc格式，需要调用其他库或转换
-            raise NotImplementedError("DOC格式需要先转换为DOCX")
 
-    except Exception as e:
-        logger.error(f"文件解析失败: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"文件解析失败: {str(e)}")
-
-    return [text for text in texts if text.strip()]
-"""
-
-"""
-import fitz  # PyMuPDF解析
-async def parse_file(file_path: str, extension: str) -> list[str]:
-    #解析不同格式文件为文本列表
-    texts = []
-    try:
-        if extension == 'txt':
-            with open(file_path, 'r', encoding='utf-8') as f:
-                texts = [f.read()]
-
-        elif extension == 'pdf':
-            # 使用PyMuPDF解析
-            doc = fitz.open(file_path)
-            for page_num in range(doc.page_count):
-                page = doc.load_page(page_num)
-                text = page.get_text()
-                texts.append(text)
-            doc.close()
-
-        elif extension == 'docx':
-            doc = Document(file_path)
-            texts = [paragraph.text for paragraph in doc.paragraphs if paragraph.text.strip()]
-
-        elif extension == 'doc':
-            # 注意：python-docx不支持.doc格式，需要调用其他库或转换
-            raise NotImplementedError("DOC格式需要先转换为DOCX")
-
-    except Exception as e:
-        logger.error(f"文件解析失败: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"文件解析失败: {str(e)}")
-
-    return [text for text in texts if text.strip()]
-"""
-
-import io
-from pdfminer.converter import TextConverter
-from pdfminer.layout import LAParams
-from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
-from pdfminer.pdfpage import PDFPage
+# import io
+# from pdfminer.converter import TextConverter
+# from pdfminer.layout import LAParams
+# from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+# from pdfminer.pdfpage import PDFPage
 
 async def parse_file(file_path: str, extension: str):
     """解析不同格式文件为文本列表"""
@@ -1394,6 +1335,9 @@ def retrieval(kbId: Optional[str] = Body(None),query: str = Body(...),limit: int
             logger.error(f"搜索失败: {str(e)}")
             return {"code": 500, "message": f"检索失败: {str(e)}"}
         """
+#测试用   
+# app = FastAPI()
+# app.include_router(router)
 
 # if __name__ == "__main__":
 #     import uvicorn
