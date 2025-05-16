@@ -1,17 +1,23 @@
 """
 知识库问答接口
 """
-from fastapi import APIRouter, Request,Body,Response
-from config import get_logger
+from fastapi import APIRouter, FastAPI,Request,Body,Response
+from app.config import get_logger
 from sse_starlette.sse import EventSourceResponse
 from typing import Optional
 import json
-from routers.rag_knowledge import retrieval
+from app.routers.rag_knowledge import retrieval
 
-from openai import AsyncOpenAI
+from openai import AsyncOpenAI,OpenAI
+#水科院api
+# client = AsyncOpenAI(
+#     api_key="sk-7947b081778614c7fe1cda",
+#     base_url="https://compatible-mode/v1"
+# )
+#qwen模型api，模型名称为qwen2.5-32b-instruct
 client = AsyncOpenAI(
-    api_key="sk-7947b081778614c7fe1cda",
-    base_url="https://compatible-mode/v1"
+    api_key='sk-7548be9550ca4f15a8b211deddbfc9e3',
+    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
 )
 # # 本地部署模型默认不需要 API key，可以留空或设置为 "EMPTY
 # openai_api_key = "EMPTY"  # 如果"
@@ -35,8 +41,8 @@ async def knowledge_base_chat(
                    kbId: Optional[str] = Body(None,description='知识库编号，不给时默认从所有知识库里检索'),
                    query: str = Body(...,desription='用户输入',examples=["你是谁"]),
                    history:list = Body([],description="历史对话记录"),
-                   stream:bool=Body(True,description="是否流式输出"),
-                   modelName:str = Body('qwq-plus',description='模型名称'),
+                   stream:bool=Body(False,description="是否流式输出"),
+                   modelName:str = Body('qwen2.5-32b-instruct',description='模型名称'),
                    temperature:float = Body(0.1,description="LLM 采样温度"),
                    limit:int = Body(3,description="查询最相关的limit个结果")
                    ):
@@ -56,12 +62,12 @@ async def knowledge_base_chat(
             #logger.info(source['files'])
             result = source['files']
                                 
-            input = f"请依据检索结果，精准回答用户问题，若结果无关，可直接基于知识作答。'用户问题:{query}\n''检索结果:{result}\n '。"
+            input = f"请依据检索结果，精准回答用户问题，若结果无关，忽略检索内容进行作答。'用户问题:{query}\n''检索结果:{result}\n '。"
             logger.info(f"问题:{input}")
             messages = [
                 {
                     'role': 'system',
-                    'content': '你现在的身份是医疗助手大模型。'
+                    'content': '你现在的身份是惠斯安普公司开发的医疗助手大模型，能够根据病人情况给出诊疗建议。'
                 },
                 {
                 'role': 'user',
@@ -287,3 +293,11 @@ async def knowledge_base_chat(
             
 
     return EventSourceResponse(event_generator(query=query,history=history,stream=stream,modelName=modelName,kbId=kbId,temperature=temperature,limit=limit))
+
+#测试接口用
+app = FastAPI()
+app.include_router(router)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="localhost", port=7080)
