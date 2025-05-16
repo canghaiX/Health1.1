@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.routers.userRouters import userRouter
 from app.routers import hrafile_router
+from app.routers import rag_chat
+from app.routers import rag_knowledge
 from app.routers.conversation_router import conversation_router
 from app.utils.Interceptors import RequestInterceptor
 
@@ -11,6 +13,8 @@ app = FastAPI()
 app.include_router(userRouter, prefix="/user", tags=["用户功能模块"])
 app.include_router(conversation_router)
 app.include_router(hrafile_router.router)
+app.include_router(rag_chat.router)
+app.include_router(rag_knowledge.router)
 
 app.add_middleware(RequestInterceptor)
 app.add_middleware(
