@@ -23,6 +23,7 @@ from fastapi import FastAPI,Body,HTTPException
 import os
 from typing import Optional
 import shutil
+from langchain.embeddings import HuggingFaceBgeEmbeddings
 
 # #pdf解析处理用的包
 # import pdfplumber
@@ -47,14 +48,16 @@ client = OpenAI(
 )
 
 # 文件存储目录配置
-base_dir = "/home/hjb/Health1.1/knowledge_base"   #放docx
+base_dir = "/home/hjb/Health1.1/knowledge_base"   #放docx以及其它知识库文件
 os.makedirs(base_dir, exist_ok=True)
 collection_mapping_dir = "/home/hjb/Health1.1/collection_mapping.json"
 
 # 指定本地嵌入模型路径
 model_path = "/home/hjb/dsft/bge-m3"
+#指定本地rerank模型路径
+rerank_model_path = "/home/hjb/dsft/bge-reranker-large"
 #md解析路径
-output_dir = './file'
+output_dir = '/home/hjb/Health1.1/knowledge_base'
 #mineru解析url
 url = 'http://localhost:7000/parse-files/'
 
@@ -136,11 +139,16 @@ def emb_text(texts, is_query):
 
 
 def generate_embeddings(docs):
-    ef = BGEM3EmbeddingFunction(use_fp16=False, device="cuda:0")
+    ef = BGEM3EmbeddingFunction(
+        model_name=model_path,
+        use_fp16=False, 
+        device="cuda:0",
+        model_kwargs={"local_files_only": True} 
+        )
+
     if isinstance(docs, str):
         docs = [docs]  # 将字符串转换为列表
     return ef(docs)
-
 """
 # 文本向量化
 def emb_text(texts,is_query):
@@ -624,8 +632,8 @@ def search_knowledge_base(query: str, col_name: str, limit: int = 3):
 """
 
 
-# 允许的文件类型
-ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'txt'}
+# 允许的文件类型,不允许pdf格式文件
+ALLOWED_EXTENSIONS = {'docx', 'txt'}
 
 def allowed_file(filename: str) -> bool:
     """检查文件扩展名是否合法"""
@@ -648,28 +656,23 @@ async def parse_file(file_path: str, extension: str):
                 parse_contents = [f.read()]
             texts = parse_contents            
         
-        elif extension == 'pdf' or extension == 'docx':
+        elif extension == 'docx':
             
             #使用file_mineru函数进行解析
             #md_list = process_pdf_file(file_path)
             
-            data = {
-                "file_paths": [file_path],
-                "output_dir": output_dir
-            }
             
             try:
-                response = requests.post(url=url,json=data)
-                md_list = response.json()[0]
-                md_file_path, md_content = md_list['output_file'], md_list['md_content']
-                parse_contents = [md_content]
-                logger.info("md文件解析成功")
+                md_file_path,parse_contents = docx_to_markdown(file_path)
+                # response = requests.post(url=url,json=data)
+                # md_list = response.json()[0]
+                # md_file_path, md_content = md_list['output_file'], md_list['md_content']
+                logger.info(f"md文件解析成功,md文件路径为{md_file_path},md内容为{parse_contents}")
                 #再对md文件进行分块处理
-                #file_name, merged_chunks = process_markdown_file(md_file_path)
-                #parser = EnhancedMarkdownParser()
-                #merged_chunks = parser.parse(md_file_path) 
                 merged_chunks = process_markdown_file(md_file_path)
-                logger.info("md文件完成分块处理")
+                # parser = EnhancedMarkdownParser()
+                # merged_chunks = parser.parse(md_file_path) 
+                logger.info(f"md文件完成分块处理,分块情况为{merged_chunks}")
                 texts = merged_chunks
             
             except Exception as e:
@@ -761,13 +764,13 @@ def hybrid_search(
     return [hit.get("text") for hit in res]
 
 
-"""""查找与当前上传文件相似度最高的文件接口"""
+"""本地存储文件接口"""
 @router.post("/search_by_file")
 async def search_by_file(kbId: str = Body(...),file: UploadFile = File(...)):
 
     # 1. 验证文件类型
     if not allowed_file(file.filename):
-        return {"code": 400, "message": "仅支持PDF/DOC/DOCX/TXT文件"}
+        return {"code": 400, "message": "仅支持DOCX/TXT文件"}
 
     try:
         # 载入映射表
@@ -931,7 +934,7 @@ async def upload_file_confirm(kbId: str = Body(...),fileId: str = Body(...),file
 
      # 1. 检查文件类型
     if not allowed_file(fileName):
-        return {"code": 400, "message": "仅支持PDF/DOC/DOCX/TXT文件"}
+        return {"code": 400, "message": "仅支持DOCX/TXT文件"}
     
     try:
         # 载入映射表
@@ -969,7 +972,7 @@ async def upload_file_confirm(kbId: str = Body(...),fileId: str = Body(...),file
     else:
         #读取当前文件解析后的 md文件
         filename = fileName.rsplit('.', 1)[0]
-        md_file_path = os.path.join(output_dir, filename, 'txt', filename + '.md')
+        md_file_path = os.path.join(output_dir, kbName, filename + '.md')
 
         #再对其md文件进行分块处理
         #_ , merged_chunks = process_markdown_file(md_file_path)
@@ -977,7 +980,7 @@ async def upload_file_confirm(kbId: str = Body(...),fileId: str = Body(...),file
         #merged_chunks = parser.parse(md_file_path) 
         merged_chunks = process_markdown_file(md_file_path)
         texts = merged_chunks
-
+        logger.info(f"这是texts{texts}")
     
     # 4. 检查集合是否存在
     if not utility.has_collection(collection_name):
@@ -988,14 +991,14 @@ async def upload_file_confirm(kbId: str = Body(...),fileId: str = Body(...),file
     # 5. 生成嵌入并插入Milvus    
     try:
         col = Collection(collection_name)
-        logger.info("-----开始文本向量化-----")
+        logger.info(f"-----开始文本向量化-----{texts}")
         #先分块
         #chunked_texts = split_text_into_chunks(texts, 512)
         #logger.info(f"分块后的文本列表:{chunked_texts}")
         #embeddings = emb_text(texts,is_query=False)
         embeddings = generate_embeddings(texts)
         #logger.info(f"向量化后的结果:{embeddings}")
-        logger.info("-----完成文本向量化-----")
+        logger.info(f"-----完成文本向量化-----")
         logger.info(f"分块处理:{texts}")
         # 将每个元素转换为列表的列表格式
         entities = [
@@ -1162,7 +1165,8 @@ def retrieval(kbId: Optional[str] = Body(None),query: str = Body(...),limit: int
         
             # 使用 BGERerankFunction 进行重排
             documents = [res["text"] for res in top_k_results]
-            bge_rf = BGERerankFunction(model_name='bge-reranker-large', device='cuda:0')
+            # bge_rf = BGERerankFunction(model_name='bge-reranker-large', device='cuda:0')
+            bge_rf = BGERerankFunction(model_name=rerank_model_path, device='cuda:0')
             rerank_results = bge_rf(
                 query=query,
                 documents=documents,
@@ -1278,7 +1282,8 @@ def retrieval(kbId: Optional[str] = Body(None),query: str = Body(...),limit: int
                 
             # 使用 BGERerankFunction 进行重排
             documents = [res["text"] for res in formatted_results]
-            bge_rf = BGERerankFunction(model_name='bge-reranker-large', device='cuda:0')
+            # bge_rf = BGERerankFunction(model_name='bge-reranker-large', device='cuda:0')
+            bge_rf = BGERerankFunction(model_name=rerank_model_path, device='cuda:0')
             rerank_results = bge_rf(
                 query=query,
                 documents=documents,
@@ -1335,10 +1340,10 @@ def retrieval(kbId: Optional[str] = Body(None),query: str = Body(...),limit: int
             logger.error(f"搜索失败: {str(e)}")
             return {"code": 500, "message": f"检索失败: {str(e)}"}
         """
-#测试用   
-# app = FastAPI()
-# app.include_router(router)
+# 测试用   
+app = FastAPI()
+app.include_router(router)
 
-# if __name__ == "__main__":
-#     import uvicorn
-#     uvicorn.run(app, host="localhost", port=7070)
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="localhost", port=7070)

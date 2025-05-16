@@ -3,9 +3,11 @@ import re
 from pathlib import Path
 
 def docx_to_markdown(docx_path, md_path=None):
-    # 若未指定输出路径，则在输入文件同目录下生成同名Markdown文件
+    docx_path = Path(docx_path)
+    # 若未指定输出路径，则在同目录下生成同名但扩展名为 .md 的文件
     if md_path is None:
-        md_path = Path(docx_path).with_suffix('.md')
+        md_path = docx_path.with_name(f"{docx_path.stem}.md")  # 关键修改点
+    # md_path.parent.mkdir(parents=True, exist_ok=True)
     
     doc = docx.Document(docx_path)
     markdown_content = []
@@ -71,8 +73,7 @@ def docx_to_markdown(docx_path, md_path=None):
     # 将结果写入Markdown文件
     with open(md_path, 'w', encoding='utf-8') as f:
         f.write('\n'.join(markdown_content))
-    
-    return md_path
+    return md_path,markdown_content
 
 # 使用示例
 if __name__ == "__main__":

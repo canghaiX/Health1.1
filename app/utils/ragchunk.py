@@ -38,7 +38,7 @@ def split_markdown_into_chunks(markdown_text, max_chunk_size=5500, overlap=500):
     title_indices = []
     lines = markdown_text.split('\n')
     for i, line in enumerate(lines):
-        if line.startswith('#'):
+        if line.startswith('\xa0'):
             title_indices.append(i)
     title_indices.append(len(lines))  # 添加结束索引
 
@@ -193,7 +193,7 @@ def split_markdown_table(file_path, header_lines=5, max_characters=5000):
         return []
 
 if __name__ == "__main__":
-    file_path = 'data'
+    file_path = '/home/hjb/Health1.1/knowledge_base/test/2015年呼吸内科新增指南及共识大汇总--来源 中华医学会.md'
     chunks = process_markdown_file(file_path)
     # chunks = split_markdown_table(file_path)
     #print(chunks)
