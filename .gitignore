@@ -4,6 +4,7 @@
 .idea/          # JetBrains IDE配置
 .vscode/        # VSCode配置
 __pycache__/    # Python字节码缓存
+**/__pycache__/ # 所有的缓存
 venv/           # Python虚拟环境
 env/            # 备用虚拟环境目录
 
