@@ -37,10 +37,13 @@ def split_markdown_into_chunks(markdown_text, max_chunk_size=5500, overlap=500):
     # 根据每行是否以 '#' 开头确定标题行索引
     title_indices = []
     lines = markdown_text.split('\n')
-    for i, line in enumerate(lines):
-        if line.startswith('\xa0'):
-            title_indices.append(i)
-    title_indices.append(len(lines))  # 添加结束索引
+    # 直接将所有行的索引添加到列表中
+    title_indices = list(range(len(lines)))
+    # #以特殊标志划分，此处为\xa0
+    # for i, line in enumerate(lines):
+    #     if line.startswith('\xa0'):
+    #         title_indices.append(i)
+    # title_indices.append(len(lines))  # 添加结束索引
 
     chunks = []
     chunk_count = 0

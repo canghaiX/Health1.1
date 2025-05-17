@@ -6,7 +6,7 @@ import requests
 userRouter = APIRouter()
 
 #处理传过来的json
-@userRouter.post("/user/dealWithJson",methods=["POST"])
+@userRouter.post("/user/dealWithJson")
 async def dealWithJson():
     data=requests.get_json(force=True)
     data1=json.loads(data)

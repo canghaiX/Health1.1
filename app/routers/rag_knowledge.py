@@ -226,6 +226,19 @@ def generate_valid_uuid():
 
 # 连接 Milvus
 connections.connect(uri="/home/hjb/Health1.1/milvus.db")
+#  #全局变量修改为单例模式，用于存储连接状态
+# _milvus_connection = None
+
+# def get_milvus_connection():
+#     global _milvus_connection
+#     if _milvus_connection is None:
+#         try:
+#             _milvus_connection = connections.connect(uri="/home/hjb/Health1.1/milvus.db")
+#         except Exception as e:
+#             print(f"连接 Milvus 失败: {e}")
+#     return _milvus_connection
+
+# get_milvus_connection()
 
 
 # 定义字段模式

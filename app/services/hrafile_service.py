@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 from fastapi import UploadFile, HTTPException
 from sqlalchemy.orm import Session
-from app.models.hrafile_model import UploadedFile
+from app.models import UploadedFile
 from app.config import HRA_FILEBASE_DIR
 
 #文件存储路径
