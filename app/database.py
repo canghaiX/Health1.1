@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from app.models.hrafile_model import UploadedFile
 
 
-DATABASE_URL = "mysql+pymysql://root:root@127.0.0.1:3306/tesst"
+DATABASE_URL = "mysql+pymysql://hsap:666666@localhost:3306/hsap_data"
 engine = create_engine(DATABASE_URL)
 
 SessionLocal = sessionmaker(autoflush=False, bind=engine)

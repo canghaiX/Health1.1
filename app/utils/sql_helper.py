@@ -5,7 +5,7 @@ from typing import List, Dict, Any, Optional, Union
 class SQLHelper:
     """MySQL数据库操作助手类"""
     
-    def __init__(self, host: str, user: str, password: str, database: str):
+    def __init__(self):
         """
         初始化数据库连接参数
         
@@ -15,10 +15,10 @@ class SQLHelper:
             password: 数据库密码
             database: 数据库名称
         """
-        self.host = host
-        self.user = user
-        self.password = password
-        self.database = database
+        self.host = 'localhost'
+        self.user = "hsap"
+        self.password = "666666"
+        self.database = "hsap_data"
         self.connection = None
     
     def connect(self) -> bool:
