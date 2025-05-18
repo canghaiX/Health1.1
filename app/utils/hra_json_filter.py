@@ -328,7 +328,7 @@ def hra_json_filter(data):
     #         for key, value in item.items():
     #             result_str += f"  • {key}: {value}\n"
     
-    print(result_str)
+    return(result_str)
     # print("\n异常数据列表：")
     # for item in abnormal_data:
     #     print(item)

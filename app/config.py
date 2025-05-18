@@ -28,9 +28,13 @@ class Settings():
     # MySQL 数据库配置
     MYSQL_HOST: str = "127.0.0.1"
     MYSQL_PORT: int = 3306
-    MYSQL_USER: str = "root"
-    MYSQL_PASSWORD: str = "root"
-    MYSQL_DATABASE: str = "health"
+    # MYSQL_USER: str = "root"
+    # MYSQL_PASSWORD: str = "root"
+    # MYSQL_DATABASE: str = "health"
+    #以下为111服务器配置
+    MYSQL_USER: str = "hsap"
+    MYSQL_PASSWORD: str = "666666"
+    MYSQL_DATABASE: str = "health_data"
 
     @property
     def database_url(self) -> str:

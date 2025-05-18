@@ -42,7 +42,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 DROP TABLE IF EXISTS `hra_data`;
 CREATE TABLE `hra_data`  (
   `id` int(11) NOT NULL COMMENT 'id，标识',
-  `hra_json_data` varchar(1023) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'hra报告的json数据',
+  `hra_json_data` varchar(65535) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'hra报告的json数据',
   `upload_file_id` int(11) NOT NULL COMMENT 'uploaded_files表的id，外键',
   `user_id` int(11) NOT NULL COMMENT 'users表的id，作外键（可能多余）',
   `equipment_id` int(11) NOT NULL COMMENT '设备id',

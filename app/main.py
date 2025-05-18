@@ -8,13 +8,15 @@ from app.routers import rag_chat
 from app.routers import rag_knowledge
 from app.routers.conversation_router import conversation_router
 from app.utils.Interceptors import RequestInterceptor
+from app.routers import hra_interpret_router
 
 app = FastAPI()
 app.include_router(userRouter, prefix="/user", tags=["用户功能模块"])
 app.include_router(conversation_router)
-app.include_router(hrafile_router.router)
-app.include_router(rag_chat.router)
-app.include_router(rag_knowledge.router)
+app.include_router(hrafile_router.router,tags=["HRA报告上传存储"])
+app.include_router(rag_chat.router,tags=["rag对话"])
+app.include_router(rag_knowledge.router,tags=["rag知识库管理模块"])
+app.include_router(hra_interpret_router.router)
 
 app.add_middleware(RequestInterceptor)
 app.add_middleware(
