@@ -2,12 +2,12 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers.userRouters import userRouter
-from .routers import hrafile_router
-from .routers import rag_chat
-from .routers import rag_knowledge
-from .routers.conversation_router import conversation_router
-from .utils.Interceptors import RequestInterceptor
+from app.routers.userRouters import userRouter
+from app.routers import hrafile_router
+from app.routers import rag_chat
+from app.routers import rag_knowledge
+from app.routers.conversation_router import conversation_router
+from app.utils.Interceptors import RequestInterceptor
 
 app = FastAPI()
 app.include_router(userRouter, prefix="/user", tags=["用户功能模块"])
@@ -30,4 +30,4 @@ async def home():
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=8080, reload=True)
+    uvicorn.run("app.main:app", host="127.0.0.1", port=8080)
