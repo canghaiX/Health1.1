@@ -7,6 +7,19 @@ class HealthDataProcessor:
             "invalid_format": "错误：数据格式不符合预期",
             "invalid_status": "错误：检查未成功完成"
         }
+        self.anomalies = []
+        self.normal_ranges = {
+            # 时域指标
+            'rmssd': {'low': 8.46, 'high': 130.46, 'unit': '毫秒'},
+            'sdnn': {'low': 12.05, 'high': 154.69, 'unit': '毫秒'},
+            'pnn50': {'low': 0.21, 'high': 57.50, 'unit': '%'},
+            'lf': {'low': 8.46, 'high': 130.46, 'unit': 'ms2'},
+            'hf': {'low': 5.0, 'high': 93.8, 'unit': 'ms2'},
+            'lfHfRatio': {'low': 0.66, 'high': 1.55, 'unit': 'C.U'},
+            # 呼吸指标
+            'breathRate': {'low': 12, 'high': 20, 'unit': '次/分钟'},
+            'avgBreathDepth': {'low': 5.0, 'high': 15.0, 'unit': '毫米'},
+        }
 
     def process(self):
         """处理健康检查数据，返回关键结论或错误信息"""
@@ -48,6 +61,69 @@ class HealthDataProcessor:
         breath = conclusion.get("breathConclusion", "")
         combined = "\n".join([s.strip() for s in [heart, breath] if s])
         return combined if combined else self.error_messages["invalid_format"]
+    #以下为雷达波异常判断部分，异常会返回False
+    def is_health_data_normal(self, data):
+        """检查健康数据是否全部正常"""
+        try:
+            if not self._validate_top_level():
+                return self.error_messages["invalid_format"]
+            if not self._validate_status():
+                return self.error_messages["invalid_status"]
+            #判定是否异常，异常会返回false
+            self.anomalies = []
+            self._check_hrv_features(data)
+            self._check_breath_features(data)
+            self._check_conclusions(data)
+            return len(self.anomalies) == 0 
+        except (KeyError, TypeError, ValueError) as e:
+            return f"错误：{str(e)}"
+
+    def get_anomalies(self):
+        """获取详细异常信息"""
+        return self.anomalies
+
+    def _check_hrv_features(self, data):
+        hrv = data.get('data', {}).get('hrvFeature', {})
+        for key, ranges in self.normal_ranges.items():
+            if key in hrv:
+                value = hrv[key]
+                if not (ranges['low'] <= value <= ranges['high']):
+                    self._add_anomaly(
+                        key.upper() if key in ['rmssd', 'sdnn'] else key.title(),
+                        value,
+                        f'超出正常范围 ({ranges["low"]}-{ranges["high"]} {ranges["unit"]})'
+                    )
+
+    def _check_breath_features(self, data):
+        breath = data.get('data', {}).get('breathFeature', {})
+        for key, ranges in self.normal_ranges.items():
+            if key in breath:
+                value = breath[key]
+                if not (ranges['low'] <= value <= ranges['high']):
+                    display_key = key.replace('avg', 'Avg ').title()
+                    self._add_anomaly(
+                        display_key,
+                        value,
+                        f'超出正常范围 ({ranges["low"]}-{ranges["high"]} {ranges["unit"]})'
+                    )
+
+    def _check_conclusions(self, data):
+        conclusion = data.get('data', {}).get('conclusion', {})
+        heart_conclusion = conclusion.get('heartConclusion', '')
+        breath_conclusion = conclusion.get('breathConclusion', '')
+        
+        if "疑似" in heart_conclusion or "异常" in heart_conclusion:
+            self._add_anomaly('心脏结论', '异常', heart_conclusion)
+        
+        if "异常" in breath_conclusion or "较深" in breath_conclusion:
+            self._add_anomaly('呼吸结论', '异常', breath_conclusion)
+
+    def _add_anomaly(self, indicator, value, reason):
+        self.anomalies.append({
+            '指标': indicator,
+            '值': value,
+            '异常原因': reason
+        })
 
 # 使用示例
 if __name__ == "__main__":

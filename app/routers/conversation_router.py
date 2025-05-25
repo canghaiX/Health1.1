@@ -1,9 +1,10 @@
-from fastapi import APIRouter, WebSocket, Depends, status
+from fastapi import APIRouter, WebSocket, Depends, status,FastAPI
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from app.services.conversationService import ConversationService
 from app.models.conversation_model import get_db
 
+app = FastAPI(title="HRA报告解读服务")
 conversation_router = APIRouter(prefix="/conversations", tags=["对话总结模块"])
 
 
@@ -33,3 +34,10 @@ async def websocket_endpoint(
 ):
     service = ConversationService()
     await service.handle_conversation_flow(websocket, conversation_id, user_id, db)
+
+# 将路由添加到独立应用,测试用
+app.include_router(conversation_router)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000) 

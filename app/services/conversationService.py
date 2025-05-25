@@ -1,3 +1,7 @@
+#检查retrieval返回数据的格式是什么样的，87行用到了返回的格式用到了[{"content":"xxx","score":0.x}]的格式
+#_update_llm_responses这个函数只记录了模型的回复，而忽略了用户的问题。
+#_cleanup中为什么要向客户端发送总结内容？
+
 import asyncio
 from datetime import datetime
 from uuid import uuid4
@@ -64,7 +68,7 @@ class ConversationService:
 
         try:
             while True:
-                # 带10秒超时的消息接收（用户输入）
+                # 带30秒超时的消息接收（用户输入）
                 user_message = await self._receive_with_timeout()
                 try:
                     user_message = json.loads(user_message)
@@ -109,11 +113,11 @@ class ConversationService:
             await self._cleanup(f"系统错误：{str(e)}")
 
     async def _receive_with_timeout(self) -> str:
-        """带10秒超时的消息接收"""
+        """带30秒超时的消息接收"""
         try:
             return await asyncio.wait_for(
                 self.websocket.receive_text(),
-                timeout=10.0  # 超时时间：10秒
+                timeout=30.0  # 超时时间：30秒
             )
         except asyncio.TimeoutError:
             raise  # 抛给外层处理
@@ -144,12 +148,12 @@ class ConversationService:
             if self.websocket.client_state == WebSocketState.CONNECTED:
                 await self.websocket.send_text(f"总结：{summary}")
 
-            # 2. 再关闭连接（原因字段控制在123字节内）
+            # 2. 再关闭连接（原因字段控制在123字节内，close方法的reason参数要求）
             short_reason = f"对话结束（原因：{reason[:100]}）"  # 截断原因至100字节
             if self.websocket.client_state == WebSocketState.CONNECTED:
                 await self.websocket.close(
                     code=status.WS_1000_NORMAL_CLOSURE,
-                    reason=short_reason[:100]  # 确保不超过123字节
+                    reason=short_reason[:100]  # 确保不超过100字节
                 )
                 # 关闭数据库会话
                 self.db.close()
