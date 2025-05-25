@@ -62,7 +62,7 @@ class HealthDataProcessor:
         combined = "\n".join([s.strip() for s in [heart, breath] if s])
         return combined if combined else self.error_messages["invalid_format"]
     #以下为雷达波异常判断部分，异常会返回False
-    def is_health_data_normal(self, data):
+    def is_health_data_normal(self):
         """检查健康数据是否全部正常"""
         try:
             if not self._validate_top_level():
@@ -71,9 +71,9 @@ class HealthDataProcessor:
                 return self.error_messages["invalid_status"]
             #判定是否异常，异常会返回false
             self.anomalies = []
-            self._check_hrv_features(data)
-            self._check_breath_features(data)
-            self._check_conclusions(data)
+            self._check_hrv_features()
+            self._check_breath_features()
+            self._check_conclusions()
             return len(self.anomalies) == 0 
         except (KeyError, TypeError, ValueError) as e:
             return f"错误：{str(e)}"
@@ -82,8 +82,8 @@ class HealthDataProcessor:
         """获取详细异常信息"""
         return self.anomalies
 
-    def _check_hrv_features(self, data):
-        hrv = data.get('data', {}).get('hrvFeature', {})
+    def _check_hrv_features(self):
+        hrv = self.json_data.get('data', {}).get('hrvFeature', {})
         for key, ranges in self.normal_ranges.items():
             if key in hrv:
                 value = hrv[key]
@@ -94,8 +94,8 @@ class HealthDataProcessor:
                         f'超出正常范围 ({ranges["low"]}-{ranges["high"]} {ranges["unit"]})'
                     )
 
-    def _check_breath_features(self, data):
-        breath = data.get('data', {}).get('breathFeature', {})
+    def _check_breath_features(self):
+        breath = self.json_data.get('data', {}).get('breathFeature', {})
         for key, ranges in self.normal_ranges.items():
             if key in breath:
                 value = breath[key]
@@ -107,8 +107,8 @@ class HealthDataProcessor:
                         f'超出正常范围 ({ranges["low"]}-{ranges["high"]} {ranges["unit"]})'
                     )
 
-    def _check_conclusions(self, data):
-        conclusion = data.get('data', {}).get('conclusion', {})
+    def _check_conclusions(self):
+        conclusion = self.json_data.get('data', {}).get('conclusion', {})
         heart_conclusion = conclusion.get('heartConclusion', '')
         breath_conclusion = conclusion.get('breathConclusion', '')
         
