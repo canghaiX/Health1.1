@@ -1,15 +1,15 @@
 from fastapi import APIRouter
-import json
+
 from app.schemas.userSchemas import UserIn, UserOut
 from app.services.userServices import UserService
 import requests
 userRouter = APIRouter()
-
 #处理传过来的json
-@userRouter.post("/user/dealWithJson")
+@userRouter.post("/user/dealWithJson",methods=["POST"])
 async def dealWithJson():
-    data=requests.get_json(force=True)
+    data=request.get_json(force=True)
     data1=json.loads(data)
+    json_test()
     return {"message": ""}
 @userRouter.get("/getUserList")
 async def getUserList():
