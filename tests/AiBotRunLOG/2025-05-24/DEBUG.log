@@ -1,0 +1,40 @@
+2025-05-24 21:16:46.071864 - DEBUG : <-<- Client connection at 127.0.0.1: 53162
+2025-05-24 21:16:46.108629 - DEBUG : ->>> b'17/84/6\ninitSpeechServiceCmwzTb35WSvnOYEPoY9wC12ExtiNJkI37VJlc9itceLmM6osBYstJQQJ99BAACYeBjFXJ3w3AAAYACOG1fhOeastus'
+2025-05-24 21:16:46.334800 - DEBUG : <-<- true
+2025-05-24 21:16:46.334800 - DEBUG : ->>> b'13/34/3/3/5/5\ninitMetahumanG:/PyAibote/humanModel/humanModel20.50.5falsefalse'
+2025-05-24 21:17:29.863424 - DEBUG : <-<- true
+2025-05-24 21:17:29.864421 - DEBUG : ->>> b'17/37/2/2/2/2\nreplaceBackgroundG:/PyAibote/NewHuman/background/2.jpg-1-1-150'
+2025-05-24 21:17:30.206350 - DEBUG : <-<- true
+2025-05-24 21:17:30.207503 - DEBUG : ->>> b'16/5\nmicrophoneToTextzh-cn'
+2025-05-24 21:17:36.294563 - DEBUG : <-<- null
+2025-05-24 21:18:09.812195 - DEBUG : <-<- Client connection at 127.0.0.1: 53180
+2025-05-24 21:18:09.812195 - DEBUG : ->>> b'17/84/6\ninitSpeechServiceCmwzTb35WSvnOYEPoY9wC12ExtiNJkI37VJlc9itceLmM6osBYstJQQJ99BAACYeBjFXJ3w3AAAYACOG1fhOeastus'
+2025-05-24 21:18:09.825300 - DEBUG : <-<- true
+2025-05-24 21:18:09.826266 - DEBUG : ->>> b'13/34/3/3/5/5\ninitMetahumanG:/PyAibote/humanModel/humanModel20.50.5falsefalse'
+2025-05-24 21:18:37.522266 - DEBUG : <-<- Client connection at 127.0.0.1: 53194
+2025-05-24 21:18:37.523269 - DEBUG : ->>> b'17/84/6\ninitSpeechServiceCmwzTb35WSvnOYEPoY9wC12ExtiNJkI37VJlc9itceLmM6osBYstJQQJ99BAACYeBjFXJ3w3AAAYACOG1fhOeastus'
+2025-05-24 21:18:37.535237 - DEBUG : <-<- true
+2025-05-24 21:18:37.536270 - DEBUG : ->>> b'13/34/3/3/5/5\ninitMetahumanG:/PyAibote/humanModel/humanModel20.50.5falsefalse'
+2025-05-24 21:19:16.553545 - DEBUG : <-<- true
+2025-05-24 21:19:16.554507 - DEBUG : ->>> b'17/37/2/2/2/2\nreplaceBackgroundG:/PyAibote/NewHuman/background/2.jpg-1-1-150'
+2025-05-24 21:19:16.655822 - DEBUG : <-<- true
+2025-05-24 21:19:16.656856 - DEBUG : ->>> b'16/5\nmicrophoneToTextzh-cn'
+2025-05-24 21:19:22.679955 - DEBUG : <-<- null
+2025-05-24 21:22:53.690632 - DEBUG : <-<- Client connection at 127.0.0.1: 53280
+2025-05-24 21:22:53.691631 - DEBUG : ->>> b'17/84/6\ninitSpeechServiceCmwzTb35WSvnOYEPoY9wC12ExtiNJkI37VJlc9itceLmM6osBYstJQQJ99BAACYeBjFXJ3w3AAAYACOG1fhOeastus'
+2025-05-24 21:22:53.699595 - DEBUG : <-<- true
+2025-05-24 21:22:53.699595 - DEBUG : ->>> b'13/34/3/3/5/5\ninitMetahumanG:/PyAibote/humanModel/humanModel20.50.5falsefalse'
+2025-05-24 21:23:21.744394 - DEBUG : <-<- true
+2025-05-24 21:23:21.745392 - DEBUG : ->>> b'17/37/2/2/2/2\nreplaceBackgroundG:/PyAibote/NewHuman/background/2.jpg-1-1-150'
+2025-05-24 21:23:21.819221 - DEBUG : <-<- true
+2025-05-24 21:23:21.819221 - DEBUG : ->>> b'16/5\nmicrophoneToTextzh-cn'
+2025-05-24 21:23:27.784187 - DEBUG : <-<- null
+2025-05-24 21:25:12.865469 - DEBUG : <-<- Client connection at 127.0.0.1: 53338
+2025-05-24 21:25:12.865469 - DEBUG : ->>> b'17/84/6\ninitSpeechServiceCmwzTb35WSvnOYEPoY9wC12ExtiNJkI37VJlc9itceLmM6osBYstJQQJ99BAACYeBjFXJ3w3AAAYACOG1fhOeastus'
+2025-05-24 21:25:12.875450 - DEBUG : <-<- true
+2025-05-24 21:25:12.875461 - DEBUG : ->>> b'13/34/3/3/5/5\ninitMetahumanG:/PyAibote/humanModel/humanModel20.50.5falsefalse'
+2025-05-24 21:25:26.368873 - DEBUG : <-<- true
+2025-05-24 21:25:26.368873 - DEBUG : ->>> b'17/37/2/2/2/2\nreplaceBackgroundG:/PyAibote/NewHuman/background/2.jpg-1-1-150'
+2025-05-24 21:25:26.439934 - DEBUG : <-<- true
+2025-05-24 21:25:26.439934 - DEBUG : ->>> b'16/5\nmicrophoneToTextzh-cn'
+2025-05-24 21:25:32.413849 - DEBUG : <-<- null

@@ -1,0 +1,187 @@
+2025-05-23 11:03:52.289059 - DEBUG : <-<- Client connection at 127.0.0.1: 52203
+2025-05-23 11:03:52.609871 - DEBUG : ->>> b'12/26/3/4/5/28\ninitNewHumanG:/PyAibote/NewHuman/model0.4truefalsertmp://127.0.0.1/live/stream'
+2025-05-23 11:04:25.843333 - DEBUG : <-<- InitPushStream error
+2025-05-23 11:04:25.844363 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 11:04:29.575628 - DEBUG : <-<- true
+2025-05-23 11:04:29.575628 - DEBUG : ->>> b'10/9/41\naudioToLab127.0.0.1G:/PyAibote/NewHuman/testAudio/audio4.wav'
+2025-05-23 11:04:31.598367 - DEBUG : <-<- false
+2025-05-23 11:04:31.599364 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio4.wavtrue'
+2025-05-23 11:05:37.193264 - DEBUG : <-<- Client connection at 127.0.0.1: 52271
+2025-05-23 11:05:37.307672 - DEBUG : ->>> b'12/26/3/4/5/28\ninitNewHumanG:/PyAibote/NewHuman/model0.4truefalsertmp://127.0.0.1/live/stream'
+2025-05-23 11:05:45.628120 - DEBUG : <-<- InitPushStream error
+2025-05-23 11:05:45.628120 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 11:05:45.754782 - DEBUG : <-<- true
+2025-05-23 11:05:45.754782 - DEBUG : ->>> b'10/9/41\naudioToLab127.0.0.1G:/PyAibote/NewHuman/testAudio/audio4.wav'
+2025-05-23 11:05:47.777940 - DEBUG : <-<- false
+2025-05-23 11:05:47.778937 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio4.wavtrue'
+2025-05-23 11:09:03.592077 - DEBUG : <-<- Client connection at 127.0.0.1: 52469
+2025-05-23 11:09:03.692276 - DEBUG : ->>> b'12/26/3/4/5/28\ninitNewHumanG:/PyAibote/NewHuman/model0.4truefalsertmp://127.0.0.1/live/stream'
+2025-05-23 11:09:12.030721 - DEBUG : <-<- InitPushStream error
+2025-05-23 11:09:12.031719 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 11:09:12.155395 - DEBUG : <-<- true
+2025-05-23 11:09:12.156429 - DEBUG : ->>> b'10/9/41\naudioToLab127.0.0.1G:/PyAibote/NewHuman/testAudio/audio4.wav'
+2025-05-23 11:09:14.183251 - DEBUG : <-<- false
+2025-05-23 11:09:14.183251 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio4.wavtrue'
+2025-05-23 11:10:40.116392 - DEBUG : <-<- Client connection at 127.0.0.1: 52661
+2025-05-23 11:10:40.230243 - DEBUG : ->>> b'12/26/3/4/5/28\ninitNewHumanG:/PyAibote/NewHuman/model0.4truefalsertmp://127.0.0.1/live/stream'
+2025-05-23 11:10:48.584139 - DEBUG : <-<- InitPushStream error
+2025-05-23 11:10:48.585135 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 11:10:48.708275 - DEBUG : <-<- true
+2025-05-23 11:10:48.709273 - DEBUG : ->>> b'10/9/41\naudioToLab127.0.0.1G:/PyAibote/NewHuman/testAudio/audio4.wav'
+2025-05-23 11:10:50.738135 - DEBUG : <-<- false
+2025-05-23 11:10:50.738135 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio4.wavtrue'
+2025-05-23 11:14:36.526619 - DEBUG : <-<- Client connection at 127.0.0.1: 52793
+2025-05-23 11:14:36.630487 - DEBUG : ->>> b'12/26/3/4/5/28\ninitNewHumanG:/PyAibote/NewHuman/model0.4truefalsertmp://127.0.0.1/live/stream'
+2025-05-23 11:14:45.007492 - DEBUG : <-<- InitPushStream error
+2025-05-23 11:14:45.008489 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 11:14:45.145746 - DEBUG : <-<- true
+2025-05-23 11:14:45.147661 - DEBUG : ->>> b'10/9/41\naudioToLab127.0.0.1G:/PyAibote/NewHuman/testAudio/audio4.wav'
+2025-05-23 11:14:47.178437 - DEBUG : <-<- false
+2025-05-23 11:14:47.178437 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio4.wavtrue'
+2025-05-23 11:15:30.415545 - DEBUG : <-<- Client connection at 127.0.0.1: 52831
+2025-05-23 11:15:30.517402 - DEBUG : ->>> b'12/26/3/4/5/28\ninitNewHumanG:/PyAibote/NewHuman/model0.4truefalsertmp://127.0.0.1/live/stream'
+2025-05-23 11:15:38.807580 - DEBUG : <-<- InitPushStream error
+2025-05-23 11:15:38.808623 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 11:15:38.930341 - DEBUG : <-<- true
+2025-05-23 11:15:38.930341 - DEBUG : ->>> b'10/9/41\naudioToLab127.0.0.1G:/PyAibote/NewHuman/testAudio/audio4.wav'
+2025-05-23 11:15:40.967508 - DEBUG : <-<- false
+2025-05-23 11:15:40.968546 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio4.wavtrue'
+2025-05-23 11:26:00.475091 - DEBUG : <-<- Client connection at 127.0.0.1: 53066
+2025-05-23 11:26:00.586336 - DEBUG : ->>> b'12/26/3/4/5/28\ninitNewHumanG:/PyAibote/NewHuman/model0.4truefalsertmp://127.0.0.1/live/stream'
+2025-05-23 11:26:08.847850 - DEBUG : <-<- InitPushStream error
+2025-05-23 11:26:08.849055 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 11:26:08.972281 - DEBUG : <-<- true
+2025-05-23 11:26:08.972281 - DEBUG : ->>> b'10/9/41\naudioToLab127.0.0.1G:/PyAibote/NewHuman/testAudio/audio4.wav'
+2025-05-23 11:26:11.005292 - DEBUG : <-<- false
+2025-05-23 11:26:11.005292 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio4.wavtrue'
+2025-05-23 11:27:51.854592 - DEBUG : <-<- Client connection at 127.0.0.1: 53099
+2025-05-23 11:27:51.952044 - DEBUG : ->>> b'12/26/3/4/5/28\ninitNewHumanG:/PyAibote/NewHuman/model0.4truefalsertmp://127.0.0.1/live/stream'
+2025-05-23 11:28:00.330450 - DEBUG : <-<- InitPushStream error
+2025-05-23 11:28:00.331402 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 11:28:00.456726 - DEBUG : <-<- true
+2025-05-23 11:28:00.457698 - DEBUG : ->>> b'10/9/41\naudioToLab127.0.0.1G:/PyAibote/NewHuman/testAudio/audio4.wav'
+2025-05-23 11:28:02.496643 - DEBUG : <-<- false
+2025-05-23 11:28:02.497401 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio4.wavtrue'
+2025-05-23 11:31:22.155597 - DEBUG : <-<- Client connection at 127.0.0.1: 53172
+2025-05-23 11:31:22.263050 - DEBUG : ->>> b'12/26/3/4/5/33\ninitNewHumanG:/PyAibote/NewHuman/model0.4truefalsertmp://127.0.0.1:8087/live/stream'
+2025-05-23 11:31:25.557905 - DEBUG : <-<- true
+2025-05-23 11:31:25.557905 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 11:31:25.696822 - DEBUG : <-<- true
+2025-05-23 11:31:25.697817 - DEBUG : ->>> b'10/14/41\naudioToLab127.0.0.1:8087G:/PyAibote/NewHuman/testAudio/audio4.wav'
+2025-05-23 11:31:25.700828 - DEBUG : <-<- false
+2025-05-23 11:31:25.701806 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio4.wavtrue'
+2025-05-23 11:31:26.531275 - DEBUG : <-<- true
+2025-05-23 11:37:12.057201 - DEBUG : <-<- Client connection at 127.0.0.1: 53780
+2025-05-23 11:37:12.195151 - DEBUG : ->>> b'12/26/3/4/5/33\ninitNewHumanG:/PyAibote/NewHuman/model0.4truefalsertmp://127.0.0.1:8087/live/stream'
+2025-05-23 11:37:16.072425 - DEBUG : <-<- InitPushStream error
+2025-05-23 11:37:16.072425 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 11:37:16.221908 - DEBUG : <-<- true
+2025-05-23 11:37:16.221908 - DEBUG : ->>> b'10/14/41\naudioToLab127.0.0.1:8087G:/PyAibote/NewHuman/testAudio/audio4.wav'
+2025-05-23 11:37:16.225889 - DEBUG : <-<- false
+2025-05-23 11:37:16.225889 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio4.wavtrue'
+2025-05-23 14:37:02.456463 - DEBUG : <-<- Client connection at 127.0.0.1: 64684
+2025-05-23 14:37:02.648220 - DEBUG : ->>> b'12/26/3/4/5/33\ninitNewHumanG:/PyAibote/NewHuman/model0.4truefalsertmp://127.0.0.1:8087/live/stream'
+2025-05-23 14:37:16.545638 - DEBUG : <-<- true
+2025-05-23 14:37:16.546633 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 14:37:17.287234 - DEBUG : <-<- true
+2025-05-23 14:37:17.288232 - DEBUG : ->>> b'10/14/41\naudioToLab127.0.0.1:8087G:/PyAibote/NewHuman/testAudio/audio4.wav'
+2025-05-23 14:37:17.293218 - DEBUG : <-<- false
+2025-05-23 14:37:17.294216 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio4.wavtrue'
+2025-05-23 14:37:18.071754 - DEBUG : <-<- true
+2025-05-23 14:48:44.154618 - DEBUG : <-<- Client connection at 127.0.0.1: 65069
+2025-05-23 14:48:44.343114 - DEBUG : ->>> b'12/26/3/4/5/33\ninitNewHumanG:/PyAibote/NewHuman/model0.4truefalsertmp://127.0.0.1:8087/live/stream'
+2025-05-23 14:48:56.003066 - DEBUG : <-<- InitPushStream error
+2025-05-23 14:48:56.004063 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 14:48:56.257409 - DEBUG : <-<- true
+2025-05-23 14:48:56.258407 - DEBUG : ->>> b'10/14/41\naudioToLab127.0.0.1:8087G:/PyAibote/NewHuman/testAudio/audio4.wav'
+2025-05-23 14:48:56.264391 - DEBUG : <-<- false
+2025-05-23 14:48:56.264391 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio4.wavtrue'
+2025-05-23 14:56:13.091895 - DEBUG : <-<- Client connection at 127.0.0.1: 55870
+2025-05-23 14:56:13.091895 - DEBUG : ->>> b'12/26/3/5/5/28\ninitNewHumanG:\\PyAibote\\NewHuman\\model0.4falsefalsertmp://127.0.0.1/live/stream'
+2025-05-23 14:56:24.893493 - DEBUG : <-<- InitPushStream error
+2025-05-23 14:56:24.894491 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 14:56:25.116315 - DEBUG : <-<- true
+2025-05-23 14:56:25.117346 - DEBUG : ->>> b'10/9/41\naudioToLab127.0.0.1G:/PyAibote/NewHuman/testAudio/audio1.wav'
+2025-05-23 14:56:34.578447 - DEBUG : <-<- true
+2025-05-23 14:56:34.579443 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio1.wavtrue'
+2025-05-23 14:59:39.134528 - DEBUG : <-<- Client connection at 127.0.0.1: 56012
+2025-05-23 14:59:39.134528 - DEBUG : ->>> b'12/26/3/5/5/28\ninitNewHumanG:\\PyAibote\\NewHuman\\model0.4falsefalsertmp://127.0.0.1/live/stream'
+2025-05-23 14:59:47.198481 - DEBUG : <-<- true
+2025-05-23 14:59:47.199478 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 14:59:47.468494 - DEBUG : <-<- true
+2025-05-23 14:59:47.468494 - DEBUG : ->>> b'10/9/41\naudioToLab127.0.0.1G:/PyAibote/NewHuman/testAudio/audio1.wav'
+2025-05-23 14:59:54.035884 - DEBUG : <-<- true
+2025-05-23 14:59:54.036881 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio1.wavtrue'
+2025-05-23 15:00:02.532492 - DEBUG : <-<- true
+2025-05-23 15:03:25.481715 - DEBUG : <-<- Client connection at 127.0.0.1: 56127
+2025-05-23 15:03:25.482712 - DEBUG : ->>> b'12/26/3/5/5/28\ninitNewHumanG:\\PyAibote\\NewHuman\\model0.4falsefalsertmp://127.0.0.1/live/stream'
+2025-05-23 15:03:34.955718 - DEBUG : <-<- InitPushStream error
+2025-05-23 15:03:34.956714 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 15:03:35.235478 - DEBUG : <-<- true
+2025-05-23 15:03:35.236475 - DEBUG : ->>> b'10/9/41\naudioToLab127.0.0.1G:/PyAibote/NewHuman/testAudio/audio1.wav'
+2025-05-23 15:03:42.859638 - DEBUG : <-<- true
+2025-05-23 15:03:42.860635 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio1.wavtrue'
+2025-05-23 15:09:24.851596 - DEBUG : <-<- Client connection at 127.0.0.1: 56355
+2025-05-23 15:09:25.146823 - DEBUG : ->>> b'12/26/3/4/5/33\ninitNewHumanG:/PyAibote/NewHuman/model0.4truefalsertmp://127.0.0.1:8087/live/stream'
+2025-05-23 15:09:39.465206 - DEBUG : <-<- InitPushStream error
+2025-05-23 15:09:39.466203 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 15:09:39.750444 - DEBUG : <-<- true
+2025-05-23 15:09:39.751441 - DEBUG : ->>> b'10/14/41\naudioToLab127.0.0.1:8087G:/PyAibote/NewHuman/testAudio/audio4.wav'
+2025-05-23 15:09:39.758422 - DEBUG : <-<- false
+2025-05-23 15:09:39.759420 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio4.wavtrue'
+2025-05-23 15:10:02.258342 - DEBUG : <-<- Client connection at 127.0.0.1: 56403
+2025-05-23 15:10:02.490721 - DEBUG : ->>> b'12/26/3/4/5/28\ninitNewHumanG:/PyAibote/NewHuman/model0.4truefalsertmp://127.0.0.1/live/stream'
+2025-05-23 15:10:13.051840 - DEBUG : <-<- InitPushStream error
+2025-05-23 15:10:13.052838 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 15:10:13.358022 - DEBUG : <-<- true
+2025-05-23 15:10:13.359019 - DEBUG : ->>> b'10/9/41\naudioToLab127.0.0.1G:/PyAibote/NewHuman/testAudio/audio4.wav'
+2025-05-23 15:10:23.727473 - DEBUG : <-<- true
+2025-05-23 15:10:23.728457 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio4.wavtrue'
+2025-05-23 15:23:32.287679 - DEBUG : <-<- Client connection at 127.0.0.1: 57289
+2025-05-23 15:23:32.573425 - DEBUG : ->>> b'12/26/3/4/5/28\ninitNewHumanG:/PyAibote/NewHuman/model0.4truefalsertmp://127.0.0.1/live/stream'
+2025-05-23 15:23:41.573836 - DEBUG : <-<- InitPushStream error
+2025-05-23 15:23:41.574833 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 15:23:41.865564 - DEBUG : <-<- true
+2025-05-23 15:23:41.866561 - DEBUG : ->>> b'10/9/41\naudioToLab127.0.0.1G:/PyAibote/NewHuman/testAudio/audio4.wav'
+2025-05-23 15:23:48.640362 - DEBUG : <-<- true
+2025-05-23 15:23:48.642357 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio4.wavtrue'
+2025-05-23 15:28:24.052441 - DEBUG : <-<- Client connection at 127.0.0.1: 57704
+2025-05-23 15:28:24.328718 - DEBUG : ->>> b'12/26/3/4/5/28\ninitNewHumanG:/PyAibote/NewHuman/model0.4truefalsertmp://127.0.0.1/live/stream'
+2025-05-23 15:28:33.044263 - DEBUG : <-<- InitPushStream error
+2025-05-23 15:28:33.045260 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 15:28:33.360276 - DEBUG : <-<- true
+2025-05-23 15:28:33.361273 - DEBUG : ->>> b'10/9/41\naudioToLab127.0.0.1G:/PyAibote/NewHuman/testAudio/audio4.wav'
+2025-05-23 15:28:39.942497 - DEBUG : <-<- true
+2025-05-23 15:28:39.943493 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio4.wavtrue'
+2025-05-23 15:39:21.749770 - DEBUG : <-<- Client connection at 127.0.0.1: 58358
+2025-05-23 15:39:22.054802 - DEBUG : ->>> b'12/26/3/4/5/28\ninitNewHumanG:/PyAibote/NewHuman/model0.4truefalsertmp://127.0.0.1/live/stream'
+2025-05-23 15:39:30.630043 - DEBUG : <-<- InitPushStream error
+2025-05-23 15:39:30.632037 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 15:39:30.831976 - DEBUG : <-<- true
+2025-05-23 15:39:30.832974 - DEBUG : ->>> b'10/9/41\naudioToLab127.0.0.1G:/PyAibote/NewHuman/testAudio/audio4.wav'
+2025-05-23 15:39:36.039227 - DEBUG : <-<- true
+2025-05-23 15:39:36.040224 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio4.wavtrue'
+2025-05-23 15:39:42.023206 - DEBUG : <-<- Client connection at 127.0.0.1: 58377
+2025-05-23 15:39:42.236688 - DEBUG : ->>> b'12/26/3/4/5/28\ninitNewHumanG:/PyAibote/NewHuman/model0.4truefalsertmp://127.0.0.1/live/stream'
+2025-05-23 15:39:50.940506 - DEBUG : <-<- InitPushStream error
+2025-05-23 15:39:50.942501 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 15:39:51.206359 - DEBUG : <-<- true
+2025-05-23 15:39:51.207356 - DEBUG : ->>> b'10/9/41\naudioToLab127.0.0.1G:/PyAibote/NewHuman/testAudio/audio4.wav'
+2025-05-23 15:39:58.157370 - DEBUG : <-<- true
+2025-05-23 15:39:58.159355 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio4.wavtrue'
+2025-05-23 22:06:37.613531 - DEBUG : <-<- Client connection at 127.0.0.1: 55687
+2025-05-23 22:06:37.819487 - DEBUG : ->>> b'12/26/3/4/5/28\ninitNewHumanG:/PyAibote/NewHuman/model0.4truefalsertmp://127.0.0.1/live/stream'
+2025-05-23 22:06:46.355434 - DEBUG : <-<- InitPushStream error
+2025-05-23 22:06:46.356431 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 22:06:46.670401 - DEBUG : <-<- true
+2025-05-23 22:06:46.671399 - DEBUG : ->>> b'10/9/41\naudioToLab127.0.0.1G:/PyAibote/NewHuman/testAudio/audio4.wav'
+2025-05-23 22:06:49.139396 - DEBUG : <-<- false
+2025-05-23 22:06:49.139396 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio4.wavtrue'
+2025-05-23 22:09:48.545530 - DEBUG : <-<- Client connection at 127.0.0.1: 55865
+2025-05-23 22:09:48.765452 - DEBUG : ->>> b'12/26/3/4/5/28\ninitNewHumanG:/PyAibote/NewHuman/model0.4truefalsertmp://127.0.0.1/live/stream'
+2025-05-23 22:09:59.578737 - DEBUG : <-<- InitPushStream error
+2025-05-23 22:09:59.579734 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-23 22:09:59.920839 - DEBUG : <-<- true
+2025-05-23 22:09:59.921836 - DEBUG : ->>> b'10/9/41\naudioToLab127.0.0.1G:/PyAibote/NewHuman/testAudio/audio4.wav'
+2025-05-23 22:10:02.081606 - DEBUG : <-<- false
+2025-05-23 22:10:02.082604 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio4.wavtrue'

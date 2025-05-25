@@ -1,0 +1,9 @@
+2025-05-25 02:52:27.731573 - ERROR : send/read tcp data error: Traceback (most recent call last):
+  File "G:\tools\anaconda1\.venv\lib\site-packages\PyAibote\Tool\SendTcpData.py", line 25, in SendData
+    response = self.StarLoadWait(data)
+  File "G:\tools\anaconda1\.venv\lib\site-packages\PyAibote\WindowsBotModel\WinLoadWait.py", line 42, in StarLoadWait
+    response = self._Send(data)
+  File "G:\tools\anaconda1\.venv\lib\site-packages\PyAibote\WindowsBotModel\WinLoadWait.py", line 22, in _Send
+    response = self.request.recv(87654)
+ConnectionResetError: [WinError 10054] 远程主机强迫关闭了一个现有的连接。
+

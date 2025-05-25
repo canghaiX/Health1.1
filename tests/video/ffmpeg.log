@@ -1,0 +1,52 @@
+ffmpeg version 7.1.1-full_build-www.gyan.dev Copyright (c) 2000-2025 the FFmpeg developers
+  built with gcc 14.2.0 (Rev1, Built by MSYS2 project)
+  configuration: --enable-gpl --enable-version3 --enable-static --disable-w32threads --disable-autodetect --enable-fontconfig --enable-iconv --enable-gnutls --enable-lcms2 --enable-libxml2 --enable-gmp --enable-bzlib --enable-lzma --enable-libsnappy --enable-zlib --enable-librist --enable-libsrt --enable-libssh --enable-libzmq --enable-avisynth --enable-libbluray --enable-libcaca --enable-libdvdnav --enable-libdvdread --enable-sdl2 --enable-libaribb24 --enable-libaribcaption --enable-libdav1d --enable-libdavs2 --enable-libopenjpeg --enable-libquirc --enable-libuavs3d --enable-libxevd --enable-libzvbi --enable-libqrencode --enable-librav1e --enable-libsvtav1 --enable-libvvenc --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs2 --enable-libxeve --enable-libxvid --enable-libaom --enable-libjxl --enable-libvpx --enable-mediafoundation --enable-libass --enable-frei0r --enable-libfreetype --enable-libfribidi --enable-libharfbuzz --enable-liblensfun --enable-libvidstab --enable-libvmaf --enable-libzimg --enable-amf --enable-cuda-llvm --enable-cuvid --enable-dxva2 --enable-d3d11va --enable-d3d12va --enable-ffnvcodec --enable-libvpl --enable-nvdec --enable-nvenc --enable-vaapi --enable-libshaderc --enable-vulkan --enable-libplacebo --enable-opencl --enable-libcdio --enable-libgme --enable-libmodplug --enable-libopenmpt --enable-libopencore-amrwb --enable-libmp3lame --enable-libshine --enable-libtheora --enable-libtwolame --enable-libvo-amrwbenc --enable-libcodec2 --enable-libilbc --enable-libgsm --enable-liblc3 --enable-libopencore-amrnb --enable-libopus --enable-libspeex --enable-libvorbis --enable-ladspa --enable-libbs2b --enable-libflite --enable-libmysofa --enable-librubberband --enable-libsoxr --enable-chromaprint
+  libavutil      59. 39.100 / 59. 39.100
+  libavcodec     61. 19.101 / 61. 19.101
+  libavformat    61.  7.100 / 61.  7.100
+  libavdevice    61.  3.100 / 61.  3.100
+  libavfilter    10.  4.100 / 10.  4.100
+  libswscale      8.  3.100 /  8.  3.100
+  libswresample   5.  3.100 /  5.  3.100
+  libpostproc    58.  3.100 / 58.  3.100
+Input #0, flv, from 'rtmp://127.0.0.1/live/stream':
+  Metadata:
+    |RtmpSampleAccess: true
+    Server          : NGINX RTMP (github.com/arut/nginx-rtmp-module)
+    displayWidth    : 432
+    displayHeight   : 768
+    fps             : 0
+    profile         : 
+    level           : 
+  Duration: 00:00:00.00, start: 0.033000, bitrate: N/A
+  Stream #0:0: Video: h264 (Constrained Baseline), yuv420p(progressive), 432x768, 2653 kb/s, 30.30 fps, 30 tbr, 1k tbn
+  Stream #0:1: Audio: aac (LC), 44100 Hz, stereo, fltp, 128 kb/s
+Stream mapping:
+  Stream #0:0 -> #0:0 (copy)
+  Stream #0:1 -> #0:1 (copy)
+Output #0, flv, to 'http://127.0.0.1:80/live/stream.flv':
+  Metadata:
+    |RtmpSampleAccess: true
+    Server          : NGINX RTMP (github.com/arut/nginx-rtmp-module)
+    displayWidth    : 432
+    displayHeight   : 768
+    fps             : 0
+    profile         : 
+    level           : 
+    encoder         : Lavf61.7.100
+  Stream #0:0: Video: h264 (Constrained Baseline) ([7][0][0][0] / 0x0007), yuv420p(progressive), 432x768, q=2-31, 2653 kb/s, 30.30 fps, 30 tbr, 1k tbn
+  Stream #0:1: Audio: aac (LC) ([10][0][0][0] / 0x000A), 44100 Hz, stereo, fltp, 128 kb/s
+Press [q] to stop, [?] for help
+frame=   47 fps=0.0 q=-1.0 size=     526KiB time=00:00:01.54 bitrate=2790.7kbits/s speed=3.01x    frame=   62 fps= 60 q=-1.0 size=     850KiB time=00:00:02.03 bitrate=3425.7kbits/s speed=1.98x    frame=   77 fps= 50 q=-1.0 size=    1210KiB time=00:00:02.54 bitrate=3897.9kbits/s speed=1.65x    frame=   93 fps= 45 q=-1.0 size=    1443KiB time=00:00:03.07 bitrate=3839.9kbits/s speed= 1.5x    frame=  103 fps= 40 q=-1.0 size=    1629KiB time=00:00:03.38 bitrate=3948.9kbits/s speed=1.31x    frame=  107 fps= 35 q=-1.0 size=    1629KiB time=00:00:03.38 bitrate=3948.9kbits/s speed= 1.1x    frame=  119 fps= 33 q=-1.0 size=    1866KiB time=00:00:04.94 bitrate=3088.6kbits/s speed=1.37x    frame=  135 fps= 33 q=-1.0 size=    2205KiB time=00:00:05.48 bitrate=3294.6kbits/s speed=1.33x    frame=  150 fps= 32 q=-1.0 size=    2402KiB time=00:00:05.97 bitrate=3295.0kbits/s speed=1.29x    frame=  164 fps= 32 q=-1.0 size=    2596KiB time=00:00:06.43 bitrate=3305.4kbits/s speed=1.25x    frame=  179 fps= 32 q=-1.0 size=    2796KiB time=00:00:06.92 bitrate=3308.9kbits/s speed=1.22x    frame=  194 fps= 31 q=-1.0 size=    2977KiB time=00:00:07.43 bitrate=3280.7kbits/s speed= 1.2x    frame=  210 fps= 31 q=-1.0 size=    3278KiB time=00:00:07.94 bitrate=3379.7kbits/s speed=1.19x    frame=  225 fps= 31 q=-1.0 size=    3466KiB time=00:00:08.47 bitrate=3348.9kbits/s speed=1.18x    frame=  241 fps= 31 q=-1.0 size=    3653KiB time=00:00:08.96 bitrate=3337.5kbits/s speed=1.16x    frame=  256 fps= 31 q=-1.0 size=    3959KiB time=00:00:09.50 bitrate=3414.1kbits/s speed=1.15x    frame=  272 fps= 31 q=-1.0 size=    4142KiB time=00:00:10.01 bitrate=3389.4kbits/s speed=1.14x    frame=  287 fps= 31 q=-1.0 size=    4328KiB time=00:00:10.52 bitrate=3369.7kbits/s speed=1.13x    frame=  299 fps= 30 q=-1.0 size=    4509KiB time=00:00:10.89 bitrate=3390.8kbits/s speed=1.11x    frame=  315 fps= 30 q=-1.0 size=    4828KiB time=00:00:11.45 bitrate=3453.6kbits/s speed=1.11x    frame=  330 fps= 30 q=-1.0 size=    5015KiB time=00:00:11.98 bitrate=3427.9kbits/s speed= 1.1x    frame=  346 fps= 30 q=-1.0 size=    5196KiB time=00:00:12.47 bitrate=3412.4kbits/s speed= 1.1x    frame=  362 fps= 30 q=-1.0 size=    5395KiB time=00:00:13.00 bitrate=3398.0kbits/s speed=1.09x    frame=  377 fps= 30 q=-1.0 size=    5694KiB time=00:00:13.54 bitrate=3444.8kbits/s speed=1.09x    frame=  393 fps= 30 q=-1.0 size=    5887KiB time=00:00:14.07 bitrate=3426.4kbits/s speed=1.09x    frame=  408 fps= 30 q=-1.0 size=    6072KiB time=00:00:14.56 bitrate=3416.0kbits/s speed=1.08x    frame=  424 fps= 30 q=-1.0 size=    6371KiB time=00:00:15.09 bitrate=3457.5kbits/s speed=1.08x    frame=  440 fps= 30 q=-1.0 size=    6538KiB time=00:00:15.63 bitrate=3426.5kbits/s speed=1.08x    frame=  456 fps= 30 q=-1.0 size=    6725KiB time=00:00:16.14 bitrate=3413.0kbits/s speed=1.08x    frame=  471 fps= 30 q=-1.0 size=    7007KiB time=00:00:16.67 bitrate=3442.2kbits/s speed=1.08x    frame=  487 fps= 30 q=-1.0 size=    7163KiB time=00:00:17.16 bitrate=3418.7kbits/s speed=1.07x    frame=  502 fps= 30 q=-1.0 size=    7334KiB time=00:00:17.69 bitrate=3394.8kbits/s speed=1.07x    frame=  518 fps= 30 q=-1.0 size=    7516KiB time=00:00:18.23 bitrate=3377.1kbits/s speed=1.07x    frame=  534 fps= 30 q=-1.0 size=    7811KiB time=00:00:18.74 bitrate=3414.3kbits/s speed=1.07x    frame=  549 fps= 30 q=-1.0 size=    7996KiB time=00:00:19.27 bitrate=3398.1kbits/s speed=1.07x    frame=  565 fps= 30 q=-1.0 size=    8185KiB time=00:00:19.81 bitrate=3384.8kbits/s speed=1.07x    frame=  581 fps= 30 q=-1.0 size=    8458KiB time=00:00:20.32 bitrate=3409.7kbits/s speed=1.06x    frame=  596 fps= 30 q=-1.0 size=    8635KiB time=00:00:20.83 bitrate=3395.7kbits/s speed=1.06x    frame=  612 fps= 30 q=-1.0 size=    8818KiB time=00:00:21.36 bitrate=3381.1kbits/s speed=1.06x    frame=  627 fps= 30 q=-1.0 size=    9110KiB time=00:00:21.87 bitrate=3411.4kbits/s speed=1.06x    frame=  644 fps= 30 q=-1.0 size=    9263KiB time=00:00:22.41 bitrate=3385.8kbits/s speed=1.06x    frame=  659 fps= 30 q=-1.0 size=    9429KiB time=00:00:22.89 bitrate=3373.3kbits/s speed=1.06x    frame=  674 fps= 30 q=-1.0 size=    9598KiB time=00:00:23.43 bitrate=3355.7kbits/s speed=1.06x    frame=  689 fps= 30 q=-1.0 size=    9856KiB time=00:00:23.92 bitrate=3375.6kbits/s speed=1.05x    frame=  705 fps= 30 q=-1.0 size=   10016KiB time=00:00:24.47 bitrate=3352.3kbits/s speed=1.05x    frame=  720 fps= 30 q=-1.0 size=   10179KiB time=00:00:24.96 bitrate=3340.1kbits/s speed=1.05x    frame=  735 fps= 30 q=-1.0 size=   10473KiB time=00:00:25.47 bitrate=3367.8kbits/s speed=1.05x    frame=  751 fps= 30 q=-1.0 size=   10636KiB time=00:00:25.96 bitrate=3356.0kbits/s speed=1.05x    frame=  767 fps= 30 q=-1.0 size=   10806KiB time=00:00:26.52 bitrate=3337.9kbits/s speed=1.05x    frame=  782 fps= 30 q=-1.0 size=   10978KiB time=00:00:27.03 bitrate=3326.9kbits/s speed=1.05x    frame=  798 fps= 30 q=-1.0 size=   11259KiB time=00:00:27.56 bitrate=3345.8kbits/s speed=1.05x    frame=  813 fps= 30 q=-1.0 size=   11452KiB time=00:00:28.07 bitrate=3341.5kbits/s speed=1.05x    frame=  829 fps= 30 q=-1.0 size=   11643KiB time=00:00:28.56 bitrate=3339.3kbits/s speed=1.04x    frame=  845 fps= 30 q=-1.0 size=   11930KiB time=00:00:29.12 bitrate=3356.0kbits/s speed=1.04x    frame=  860 fps= 30 q=-1.0 size=   12107KiB time=00:00:29.63 bitrate=3347.1kbits/s speed=1.04x    frame=  876 fps= 30 q=-1.0 size=   12297KiB time=00:00:30.16 bitrate=3339.4kbits/s speed=1.04x    frame=  892 fps= 30 q=-1.0 size=   12579KiB time=00:00:30.70 bitrate=3356.6kbits/s speed=1.04x    frame=  907 fps= 30 q=-1.0 size=   12763KiB time=00:00:31.21 bitrate=3349.8kbits/s speed=1.04x    frame=  923 fps= 30 q=-1.0 size=   12935KiB time=00:00:31.74 bitrate=3337.9kbits/s speed=1.04x    frame=  939 fps= 30 q=-1.0 size=   13230KiB time=00:00:32.27 bitrate=3357.5kbits/s speed=1.04x    [aost#0:1/copy @ 0000022ba001ce40] Error submitting a packet to the muxer: Error number -10053 occurred
+    Last message repeated 1 times
+[out#0/flv @ 0000022ba0a8db80] Error muxing a packet
+[out#0/flv @ 0000022ba0a8db80] Task finished with error code: -10053 (Error number -10053 occurred)
+[out#0/flv @ 0000022ba0a8db80] Terminating thread with return code -10053 (Error number -10053 occurred)
+[flv @ 0000022ba0a61380] Failed to update header with correct duration.
+[flv @ 0000022ba0a61380] Failed to update header with correct filesize.
+[out#0/flv @ 0000022ba0a8db80] Error writing trailer: Error number -10053 occurred
+[http @ 0000022ba0a67940] URL read error: Error number -10053 occurred
+[out#0/flv @ 0000022ba0a8db80] Error closing file: Error number -10053 occurred
+[out#0/flv @ 0000022ba0a8db80] video:13170KiB audio:61KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.279185%
+frame=  944 fps= 30 q=-1.0 Lsize=   13268KiB time=00:00:32.44 bitrate=3350.4kbits/s speed=1.04x    
+Conversion failed!

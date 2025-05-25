@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>数字人直播平台</title>
+    <!-- 引入 flv.js 播放库 -->
+    <script src="https://cdn.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.min.js"></script>
+    <style>
+        /* 基础样式 */
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #2a2a2a;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* 播放器容器 */
+        #videoContainer {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* 视频元素 */
+        #videoElement {
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+            background: #000;
+        }
+
+        /* 控制栏 */
+        .controls {
+            padding: 20px;
+            text-align: center;
+            background: #333;
+            border-radius: 0 0 6px 6px;
+        }
+
+        /* 状态提示 */
+        #status {
+            color: #fff;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        /* 按钮样式 */
+        button {
+            background: #409eff;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="videoContainer">
+            <video id="videoElement" controls></video>
+        </div>
+        <div class="controls">
+            <button id="playButton" onclick="initPlayer()">启动数字人</button>
+            <div id="status">状态: 等待连接...</div>
+        </div>
+    </div>
+
+    <script>
+        // 播放器全局引用
+        let flvPlayer = null;
+        // HTTP-FLV 流地址（根据实际配置调整）
+        const streamURL = 'http://127.0.0.1:855/live/stream.flv';
+
+        // 初始化播放器
+        function initPlayer() {
+            const videoElement = document.getElementById('videoElement');
+            const statusElement = document.getElementById('status');
+            const playButton = document.getElementById('playButton');
+
+            // 1. 检测浏览器支持
+            if (!flvjs.isSupported()) {
+                statusElement.innerHTML = '当前浏览器不支持 FLV 播放';
+                playButton.disabled = true;
+                return;
+            }
+
+            // 2. 创建播放器实例
+            try {
+                flvPlayer = flvjs.createPlayer({
+                    type: 'flv',
+                    url: streamURL,
+                    isLive: true,      // 直播模式
+                    hasAudio: false,   // 根据实际流配置
+                    hasVideo: true,
+                    cors: true         // 启用 CORS
+                });
+
+                // 3. 绑定视频元素
+                flvPlayer.attachMediaElement(videoElement);
+
+                // 4. 加载并播放
+                flvPlayer.load();
+                videoElement.play()
+                    .then(() => {
+                        statusElement.innerHTML = '状态: 直播连接成功';
+                        playButton.disabled = true;
+                    })
+                    .catch(err => {
+                        statusElement.innerHTML = `播放失败: ${err.message}`;
+                    });
+
+                // 5. 错误监听
+                flvPlayer.on(flvjs.Events.ERROR, (errType, errDetail) => {
+                    console.error('播放器错误:', errType, errDetail);
+                    statusElement.innerHTML = `播放错误: ${errDetail}`;
+                    destroyPlayer();
+                });
+
+            } catch (error) {
+                console.error('初始化失败:', error);
+                statusElement.innerHTML = '播放器初始化失败';
+            }
+        }
+
+        // 销毁播放器
+        function destroyPlayer() {
+            if (flvPlayer) {
+                flvPlayer.pause();
+                flvPlayer.unload();
+                flvPlayer.detachMediaElement();
+                flvPlayer.destroy();
+                flvPlayer = null;
+                document.getElementById('playButton').disabled = false;
+                document.getElementById('status').innerHTML = '状态: 播放已停止';
+            }
+        }
+
+        // 页面卸载时清理资源
+        window.addEventListener('beforeunload', () => {
+            destroyPlayer();
+        });
+    </script>
+</body>
+</html>

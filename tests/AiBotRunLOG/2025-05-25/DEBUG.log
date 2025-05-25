@@ -1,0 +1,9 @@
+2025-05-25 19:02:23.442995 - DEBUG : <-<- Client connection at 127.0.0.1: 53001
+2025-05-25 19:02:23.451840 - DEBUG : ->>> b'17/84/6\ninitSpeechServiceCmwzTb35WSvnOYEPoY9wC12ExtiNJkI37VJlc9itceLmM6osBYstJQQJ99BAACYeBjFXJ3w3AAAYACOG1fhOeastus'
+2025-05-25 19:02:23.461483 - DEBUG : <-<- true
+2025-05-25 19:02:23.462525 - DEBUG : ->>> b'13/34/3/3/5/5\ninitMetahumanG:/PyAibote/humanModel/humanModel20.50.5falsefalse'
+2025-05-25 19:03:03.575404 - DEBUG : <-<- true
+2025-05-25 19:03:03.575404 - DEBUG : ->>> b'17/37/2/2/2/2\nreplaceBackgroundG:/PyAibote/NewHuman/background/2.jpg-1-1-150'
+2025-05-25 19:03:07.330324 - DEBUG : <-<- true
+2025-05-25 19:03:07.330324 - DEBUG : ->>> b'16/5\nmicrophoneToTextzh-cn'
+2025-05-25 19:03:11.718825 - DEBUG : <-<- 你好。
