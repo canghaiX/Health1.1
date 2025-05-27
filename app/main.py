@@ -10,7 +10,7 @@ from app.routers.conversation_router import conversation_router
 from app.utils.Interceptors import RequestInterceptor
 from app.routers import hra_interpret_router
 from app.routers import radar_receive
-from app.routers import test_radar_continuetalk
+from app.routers import radar_continuetalk
 
 app = FastAPI()
 app.include_router(userRouter, prefix="/user", tags=["用户功能模块"])
@@ -20,7 +20,7 @@ app.include_router(rag_chat.router,tags=["rag对话"])
 app.include_router(rag_knowledge.router,tags=["rag知识库管理模块"])
 app.include_router(hra_interpret_router.router)
 app.include_router(radar_receive.router)
-app.include_router(test_radar_continuetalk.conversation_router)
+app.include_router(radar_continuetalk.conversation_router)
 
 
 app.add_middleware(
