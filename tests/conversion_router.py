@@ -20,6 +20,7 @@ class CreateSessionResponse(BaseModel):
 # 创建会话接口（生成唯一ID）
 @conversation_router.post("/createConversation", response_model=CreateSessionResponse)
 def create_session(request: CreateSessionRequest):
+    print("id")
     conversation_id = ConversationService.create_conversation_id()
     service.bind_conversation_kb(conversation_id, request.kb_id)
     return CreateSessionResponse(conversation_id=conversation_id)
@@ -49,4 +50,4 @@ app.include_router(conversation_router)
 if __name__ == "__main__":
     import uvicorn
     # 运行 FastAPI 应用
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8010)

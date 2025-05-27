@@ -1,16 +1,15 @@
-from fastapi import APIRouter, WebSocket, Depends, status,FastAPI
+from fastapi import APIRouter, WebSocket, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from app.services.conversationService import ConversationService
 from app.models.conversation_model import get_db
 
-app = FastAPI(title="HRA报告解读服务")
 conversation_router = APIRouter(prefix="/conversations", tags=["对话总结模块"])
-
+service = ConversationService()
 
 class CreateSessionRequest(BaseModel):
     user_id: str  # 前端传递的用户ID
-
+    kb_id: str  # 前端传递要关联的知识库ID
 
 class CreateSessionResponse(BaseModel):
     conversation_id: str  # 生成的会话ID（UUID）
@@ -20,7 +19,9 @@ class CreateSessionResponse(BaseModel):
 # 创建会话接口（生成唯一ID）
 @conversation_router.post("/createConversation", response_model=CreateSessionResponse)
 def create_session(request: CreateSessionRequest):
+    print("id")
     conversation_id = ConversationService.create_conversation_id()
+    service.bind_conversation_kb(conversation_id, request.kb_id)
     return CreateSessionResponse(conversation_id=conversation_id)
 
 
@@ -32,12 +33,18 @@ async def websocket_endpoint(
         user_id: str,
         db: Session = Depends(get_db)  # 通过Depends注入db会话
 ):
-    service = ConversationService()
-    await service.handle_conversation_flow(websocket, conversation_id, user_id, db)
+    kb_id = service.get_kb_by_id(conversation_id)  # 若值为‘’，则未关联知识库
+    await service.handle_conversation_flow(websocket, conversation_id, user_id, db, kb_id)
 
-# 将路由添加到独立应用,测试用
-app.include_router(conversation_router)
+
+
+from fastapi import FastAPI
+
+# 创建一个 FastAPI 应用实例
+app = FastAPI()
+
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000) 
+    # 运行 FastAPI 应用
+    uvicorn.run(app, host="0.0.0.0", port=8010)

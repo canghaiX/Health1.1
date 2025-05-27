@@ -1,6 +1,8 @@
 #处理雷达波数据
-#2025.5.14 21.25:目前的类只包含了将雷达波数据结论摘取出来的逻辑，还需要对雷达波数据是否异常进行判断的逻辑，来决定是否触发主动问答。
 class HealthDataProcessor:
+    '''
+    对雷达波数据进行判断、处理
+    '''
     def __init__(self, json_data):
         self.json_data = json_data
         self.error_messages = {

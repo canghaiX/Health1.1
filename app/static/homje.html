@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能对话系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto p-4">
+        <!-- 会话创建区域 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">创建新会话</h2>
+            <div class="flex gap-3">
+                <input type="text" id="userIdInput"
+                       class="border p-2 rounded flex-1"
+                       placeholder="输入用户ID（如user_123）">
+                <button id="createSessionBtn"
+                        class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+                    创建会话
+                </button>
+            </div>
+            <div class="mt-3 text-sm text-gray-600" id="sessionInfo">
+                会话ID将显示在此处...
+            </div>
+        </div>
+
+        <!-- 对话区域 -->
+        <div class="bg-white rounded-lg shadow-md p-6 hidden" id="chatContainer">
+            <h2 class="text-xl font-bold mb-4">对话中</h2>
+            <div id="messages" class="h-96 overflow-y-auto mb-4 p-3 bg-gray-50 rounded">
+                <!-- 消息会动态插入此处 -->
+            </div>
+            <div class="flex gap-3">
+                <input type="text" id="messageInput"
+                       class="border p-2 rounded flex-1"
+                       placeholder="输入消息（10秒无操作自动断开）">
+                <button id="sendBtn"
+                        class="bg-green-500 text-white p-2 rounded hover:bg-green-600">
+                    发送 <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <div class="mt-3 text-sm text-gray-600" id="status">连接状态：未连接</div>
+        </div>
+
+        <!-- 总结展示区域 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mt-6 hidden" id="summaryContainer">
+            <h2 class="text-xl font-bold mb-3">对话总结</h2>
+            <div id="summaryContent" class="text-gray-700"></div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let conversationId = null;
+        let userId = null;
+
+        // 创建会话按钮点击事件
+        document.getElementById('createSessionBtn').addEventListener('click', async () => {
+            userId = document.getElementById('userIdInput').value.trim();
+            if (!userId) {
+                alert('请输入用户ID');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://127.0.0.1:8100/conversations/createConversation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId,kb_id:"2" })
+                });
+                console.log("123")
+                const data = await response.json();
+                conversationId = data.conversation_id;
+                document.getElementById('sessionInfo').textContent = `会话创建成功！会话ID：${conversationId}`;
+                document.getElementById('chatContainer').classList.remove('hidden');
+                initWebSocket();
+            } catch (error) {
+                alert(`创建会话失败：${error.message}`);
+            }
+        });
+
+        // 初始化WebSocket连接
+        function initWebSocket() {
+            if (!conversationId || !userId) return;
+
+            ws = new WebSocket(`ws://127.0.0.1:8100/conversations/ws/${conversationId}?user_id=${userId}`);
+            ws.onopen = () => {
+                document.getElementById('status').textContent = '连接状态：已连接';
+                document.getElementById('messageInput').disabled = false;
+                document.getElementById('sendBtn').disabled = false;
+            };
+
+            ws.onmessage = (event) => {
+                if (event.data.startsWith("总结：")) {
+                    // 显示总结内容
+                    document.getElementById('summaryContent').textContent = event.data.split("总结：")[1];
+                    document.getElementById('summaryContainer').classList.remove('hidden');
+                } else {
+                    // 正常消息处理
+                    addMessage('assistant', event.data);
+                }
+            };
+
+            ws.onclose = (event) => {
+                document.getElementById('status').textContent = `连接已断开（原因：${event.reason}）`;
+                document.getElementById('messageInput').disabled = true;
+                document.getElementById('sendBtn').disabled = true;
+                if (event.code === 1000) {
+                    document.getElementById('summaryContainer').classList.remove('hidden');
+                    document.getElementById('summaryContent').textContent = event.reason.split('总结：')[1];
+                }
+            };
+
+            ws.onerror = (error) => {
+                alert(`WebSocket错误：${error.message}`);
+            };
+        }
+
+        // 发送消息事件
+        document.getElementById('sendBtn').addEventListener('click', () => {
+            const message = document.getElementById('messageInput').value.trim();
+            if (!message) return;
+
+            addMessage('user', message);
+            ws.send(message);
+            document.getElementById('messageInput').value = '';
+        });
+
+        // 键盘回车发送消息
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') document.getElementById('sendBtn').click();
+        });
+
+        // 添加消息到对话区域
+        function addMessage(role, content) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `mb-3 p-3 rounded-lg ${role === 'user' ? 'bg-blue-100 ml-4' : 'bg-green-100 mr-4'}`;
+            messageDiv.innerHTML = `
+                <div class="font-semibold text-sm ${role === 'user' ? 'text-blue-600' : 'text-green-600'}">
+                    ${role === 'user' ? '你' : '助手'}
+                </div>
+                <div class="text-gray-800">${content}</div>
+            `;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>

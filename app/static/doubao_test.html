@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>豆包智能对话</title>
+    <title>智能对话</title>
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -110,7 +110,7 @@
 </head>
 <body>
     <div class="container">
-        <h1 style="color: #2c3e50; margin-bottom: 24px;">豆包智能对话</h1>
+        <h1 style="color: #2c3e50; margin-bottom: 24px;">智能对话</h1>
 
         <div class="button-group">
             <button class="create-btn" id="createConversationBtn">创建新会话</button>
@@ -155,7 +155,7 @@
         // 创建会话（调用后端创建接口）
         createBtn.addEventListener('click', async () => {
             try {
-                const response = await fetch('http://127.0.0.1:8100/conversations/', {
+                const response = await fetch('http://127.0.0.1:8100/conversations/createConversation', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' }
                 });
@@ -167,6 +167,30 @@
                 renderMessage(`创建会话失败: ${error.message}`, 'system');
             }
         });
+        // createBtn.addEventListener('click', async () => {
+        // // 示例：从前端获取用户ID和知识库ID（实际需根据界面交互调整）
+        // const userId = '1'; // 假设从登录状态获取
+        // const kbId = '2';     // 假设从下拉菜单获取
+
+        // try {
+        //     const response = await fetch('http://127.0.0.1:8100/conversations/createConversation', {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify({ user_id: userId, kb_id: kbId }) // 传递必填参数
+        //     });
+
+        //     if (!response.ok) {
+        //     throw new Error(`HTTP error! Status: ${response.status}`); // 处理非2xx状态码
+        //     }
+
+        //     const data = await response.json();
+        //     conversationId = data.conversation_id;
+        //     connectBtn.disabled = false;
+        //     renderMessage(`新会话创建成功（ID: ${conversationId}）`, 'system');
+        // } catch (error) {
+        //     renderMessage(`创建会话失败: ${error.message}`, 'system');
+        // }
+        // });
 
         // 建立WebSocket连接
         connectBtn.addEventListener('click', () => {

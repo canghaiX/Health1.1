@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>雷达数据处理API测试工具</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3B82F6',
+            secondary: '#10B981',
+            danger: '#EF4444',
+            warning: '#F59E0B',
+            info: '#6366F1',
+            dark: '#1F2937',
+            light: '#F9FAFB'
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .editor-shadow {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      }
+      .response-card {
+        transition: all 0.3s ease;
+      }
+      .response-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+      .btn-hover {
+        transition: all 0.2s ease;
+      }
+      .btn-hover:hover {
+        transform: translateY(-1px);
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 font-inter min-h-screen flex flex-col">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white shadow-md sticky top-0 z-10">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fa fa-heartbeat text-primary text-2xl"></i>
+        <h1 class="text-xl font-bold text-dark">雷达数据处理API测试工具</h1>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span id="connection-status" class="text-xs px-2 py-1 rounded-full bg-gray-200 text-gray-600">
+          <i class="fa fa-circle-o text-gray-400 mr-1"></i>未连接WebSocket
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="flex-grow container mx-auto px-4 py-6">
+    <!-- 测试信息卡片 -->
+    <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+      <h2 class="text-lg font-semibold text-dark mb-2">API测试说明</h2>
+      <p class="text-gray-600 text-sm">
+        此工具用于测试雷达数据处理API。您可以编辑右侧的JSON数据，然后点击"发送请求"按钮。
+        系统会将数据发送到API并显示响应结果。如果检测到异常，系统会生成会话ID并建立WebSocket连接。
+      </p>
+    </div>
+
+    <!-- 主要测试区域 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- 请求数据编辑器 -->
+      <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+          <h3 class="font-medium text-dark">请求数据</h3>
+          <div class="flex space-x-2">
+            <button id="format-json" class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded transition-colors">
+              <i class="fa fa-indent mr-1"></i>格式化
+            </button>
+            <button id="reset-data" class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded transition-colors">
+              <i class="fa fa-refresh mr-1"></i>重置
+            </button>
+          </div>
+        </div>
+        <div class="p-4">
+          <div class="mb-3 flex">
+            <select id="user-id" class="border border-gray-300 rounded-l-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary text-sm w-1/4">
+              <option value="1">用户1</option>
+              <option value="2">用户2</option>
+              <option value="3">用户3</option>
+            </select>
+            <select id="kb-id" class="border-t border-b border-gray-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary text-sm w-1/4">
+              <option value="1">知识库1</option>
+              <option value="2">知识库2</option>
+              <option value="3">知识库3</option>
+            </select>
+            <button id="send-request" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-r-md text-sm btn-hover">
+              <i class="fa fa-paper-plane mr-1"></i>发送请求
+            </button>
+          </div>
+          <textarea id="request-data" class="w-full h-[400px] p-3 border border-gray-300 rounded-md text-sm font-mono scrollbar-hide editor-shadow focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" placeholder="输入JSON数据...">{
+  "user_id": "1",
+  "kb_id": "2",
+  "data": {
+    "success": "true",
+    "failReason": "null",
+    "data": {
+      "success": 1,
+      "errorCode": 0,
+      "csgCollectId": "a8afa745-819c-46a0-aea3-02cfd4de3884",
+      "person": {
+        "name": "hsap",
+        "sex": "Male",
+        "age": 26
+      },
+      "startTime": "1745819347505",
+      "endTime": "1745819407505",
+      "heartRate": 76,
+      "conclusion": {
+        "heartConclusion": "在此次检查中：\n您的平均心率 76 次/分钟，房颤发生概率 0%，早搏发生概率 75%，心动过速发生概率 0%，心动过缓发生概率 0%，心律不齐发生概率 44%，心脏收缩时间间期(PEP/LVET)为 0.0，心电波形(QRS)时限 - 毫秒，(QT)间期 - 毫秒，心率变异性(rMSSD)为 29.48 毫秒，LF/HF为1.02 毫秒。\n此段心电图疑似早搏；若出现心悸、气短、胸闷、眩晕等症状，请咨询医生做进一步检查。",
+        "breathConclusion": "您的平均呼吸率 16 次/分钟，平均呼吸深度 9.0 毫米，呼气吸气比 5.73 。\n呼吸较深；若出现呼吸不畅、喘不上气、呼吸困难、头晕恶心等症状，请咨询医生做进一步检查。"
+      },
+      "sti": 0.0,
+      "hrvFeature": {
+        "sdnn": 25.753937,
+        "rmssd": 29.48272,
+        "pnn50": 0.46153846,
+        "cvsd": 0.03916111,
+        "cvcdi": 0.034208268,
+        "lf": 273.5398,
+        "hf": 267.2555,
+        "lfHfRatio": 1.0235142
+      },
+      "breathFeature": {
+        "breathRate": 16,
+        "avgBreathDepth": 9.00252,
+        "maxBreathDepth": 45.28404,
+        "minBreathDepth": 1.2028135,
+        "expiratoryTime": 825,
+        "inspiratoryTime": 4725
+      }
+    }
+  }
+}</textarea>
+        </div>
+      </div>
+
+      <!-- 响应结果显示 -->
+      <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+          <h3 class="font-medium text-dark">响应结果</h3>
+          <div class="flex space-x-2">
+            <button id="clear-response" class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded transition-colors">
+              <i class="fa fa-trash-o mr-1"></i>清空
+            </button>
+          </div>
+        </div>
+        <div class="p-4">
+          <div class="mb-3 flex items-center justify-between">
+            <div class="text-sm text-gray-500">
+              <span id="status-code" class="px-2 py-1 rounded bg-gray-100">--</span>
+            </div>
+            <div class="flex space-x-2">
+              <span id="request-time" class="text-xs text-gray-500">请求时间: --</span>
+              <span id="response-size" class="text-xs text-gray-500">响应大小: --</span>
+            </div>
+          </div>
+          <div id="response-container" class="w-full h-[400px] overflow-auto scrollbar-hide">
+            <div id="response-placeholder" class="h-full flex items-center justify-center text-gray-400 text-sm">
+              <i class="fa fa-comments-o mr-2"></i>发送请求后结果将显示在这里
+            </div>
+            <div id="response-content" class="hidden">
+              <!-- 响应内容将在这里动态显示 -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WebSocket消息区域 -->
+    <div class="mt-6 bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+        <h3 class="font-medium text-dark">WebSocket消息</h3>
+        <div>
+          <button id="connect-websocket" class="text-xs px-2 py-1 bg-secondary text-white hover:bg-secondary/90 rounded transition-colors btn-hover">
+            <i class="fa fa-plug mr-1"></i>连接WebSocket
+          </button>
+          <button id="disconnect-websocket" class="text-xs px-2 py-1 bg-danger text-white hover:bg-danger/90 rounded transition-colors ml-2 btn-hover hidden">
+            <i class="fa fa-power-off mr-1"></i>断开连接
+          </button>
+        </div>
+      </div>
+      <div class="p-4">
+        <div class="flex mb-3">
+          <input id="websocket-message" type="text" placeholder="输入要发送的消息..." class="flex-grow border border-gray-300 rounded-l-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary text-sm">
+          <button id="send-websocket-message" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-r-md text-sm btn-hover" disabled>
+            <i class="fa fa-paper-plane-o mr-1"></i>发送
+          </button>
+        </div>
+        <div id="websocket-messages" class="w-full h-[200px] bg-gray-50 rounded-md p-3 overflow-auto scrollbar-hide text-sm">
+          <div class="text-gray-400 italic">WebSocket消息将显示在这里...</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="bg-dark text-white py-4 mt-8">
+    <div class="container mx-auto px-4 text-center text-sm">
+      <p>© 2025 雷达数据处理API测试工具 | 用于开发和测试环境</p>
+    </div>
+  </footer>
+
+  <script>
+    // 存储原始数据
+    const originalData = document.getElementById('request-data').value;
+    let websocket = null;
+    let conversationId = null;
+
+    // DOM元素
+    const requestDataEl = document.getElementById('request-data');
+    const sendRequestEl = document.getElementById('send-request');
+    const formatJsonEl = document.getElementById('format-json');
+    const resetDataEl = document.getElementById('reset-data');
+    const clearResponseEl = document.getElementById('clear-response');
+    const statusCodeEl = document.getElementById('status-code');
+    const requestTimeEl = document.getElementById('request-time');
+    const responseSizeEl = document.getElementById('response-size');
+    const responsePlaceholderEl = document.getElementById('response-placeholder');
+    const responseContentEl = document.getElementById('response-content');
+    const connectionStatusEl = document.getElementById('connection-status');
+    const connectWebsocketEl = document.getElementById('connect-websocket');
+    const disconnectWebsocketEl = document.getElementById('disconnect-websocket');
+    const websocketMessageEl = document.getElementById('websocket-message');
+    const sendWebsocketMessageEl = document.getElementById('send-websocket-message');
+    const websocketMessagesEl = document.getElementById('websocket-messages');
+    const userIdEl = document.getElementById('user-id');
+    const kbIdEl = document.getElementById('kb-id');
+
+    // 格式化JSON
+    formatJsonEl.addEventListener('click', () => {
+      try {
+        const parsedData = JSON.parse(requestDataEl.value);
+        requestDataEl.value = JSON.stringify(parsedData, null, 2);
+      } catch (e) {
+        alert('JSON格式错误: ' + e.message);
+      }
+    });
+
+    // 重置数据
+    resetDataEl.addEventListener('click', () => {
+      requestDataEl.value = originalData;
+    });
+
+    // 清空响应
+    clearResponseEl.addEventListener('click', () => {
+      statusCodeEl.textContent = '--';
+      requestTimeEl.textContent = '请求时间: --';
+      responseSizeEl.textContent = '响应大小: --';
+      responseContentEl.innerHTML = '';
+      responsePlaceholderEl.classList.remove('hidden');
+      responseContentEl.classList.add('hidden');
+    });
+
+    // 发送请求
+    sendRequestEl.addEventListener('click', async () => {
+      try {
+        // 获取用户选择的ID
+        const userId = userIdEl.value;
+        const kbId = kbIdEl.value;
+        
+        // 解析请求数据
+        const requestData = JSON.parse(requestDataEl.value);
+        
+        // 更新请求数据中的user_id和kb_id
+        requestData.user_id = userId;
+        requestData.kb_id = kbId;
+        
+        // 显示加载状态
+        statusCodeEl.textContent = '发送中...';
+        statusCodeEl.className = 'px-2 py-1 rounded bg-blue-100 text-blue-700';
+        requestTimeEl.textContent = '请求时间: 处理中...';
+        responseSizeEl.textContent = '响应大小: --';
+        responsePlaceholderEl.classList.add('hidden');
+        responseContentEl.classList.remove('hidden');
+        responseContentEl.innerHTML = `
+          <div class="flex items-center justify-center h-full">
+            <i class="fa fa-spinner fa-spin text-primary mr-2"></i>
+            <span>正在发送请求，请稍候...</span>
+          </div>
+        `;
+
+        // 记录开始时间
+        const startTime = new Date();
+        
+        // 发送请求
+        const response = await fetch('http://localhost:8100/conversations/processRadarData', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestData)
+        });
+
+        // 记录结束时间
+        const endTime = new Date();
+        const duration = endTime - startTime;
+        
+        // 处理响应
+        const responseData = await response.json();
+        
+        // 更新状态码显示
+        statusCodeEl.textContent = response.status;
+        if (response.ok) {
+          statusCodeEl.className = 'px-2 py-1 rounded bg-green-100 text-green-700';
+        } else {
+          statusCodeEl.className = 'px-2 py-1 rounded bg-red-100 text-red-700';
+        }
+        
+        // 更新时间和大小
+        requestTimeEl.textContent = `请求时间: ${duration}ms`;
+        responseSizeEl.textContent = `响应大小: ${JSON.stringify(responseData).length}B`;
+        
+        // 显示响应内容
+        displayResponse(responseData, response.status);
+        
+        // 如果响应中包含conversation_id，存储它并更新WebSocket连接按钮
+        if (responseData.conversation_id) {
+          conversationId = responseData.conversation_id;
+          connectWebsocketEl.disabled = false;
+          connectWebsocketEl.classList.remove('opacity-50', 'cursor-not-allowed');
+          
+          // 自动连接WebSocket
+          connectToWebSocket();
+        }
+        
+      } catch (error) {
+        console.error('请求出错:', error);
+        statusCodeEl.textContent = '错误';
+        statusCodeEl.className = 'px-2 py-1 rounded bg-red-100 text-red-700';
+        responseContentEl.innerHTML = `
+          <div class="p-4 bg-red-50 border border-red-200 rounded-md">
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <i class="fa fa-exclamation-circle text-red-500"></i>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">请求处理出错</h3>
+                <div class="mt-2 text-sm text-red-700">
+                  <p>${error.message}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    });
+
+    // 显示响应内容
+    function displayResponse(data, statusCode) {
+      responseContentEl.innerHTML = '';
+      
+      // 成功响应 (200)
+      if (statusCode === 200) {
+        responseContentEl.innerHTML = `
+          <div class="bg-green-50 border border-green-200 rounded-md p-4 mb-4">
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <i class="fa fa-check-circle text-green-500"></i>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-green-800">成功检测到异常</h3>
+                <div class="mt-2 text-sm text-green-700">
+                  <p>已生成会话ID: <span class="font-semibold">${data.conversation_id}</span></p>
+                  <p>WebSocket URL: <a href="${data.websocket_url}" target="_blank" class="text-blue-600 hover:underline">${data.websocket_url}</a></p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white border border-gray-200 rounded-md p-4">
+            <h3 class="text-sm font-semibold text-gray-800 mb-2">初始响应</h3>
+            <div class="bg-gray-50 p-3 rounded-md text-sm">
+              ${data.initial_response}
+            </div>
+          </div>
+        `;
+      }
+      // 无异常响应 (204)
+      else if (statusCode === 204) {
+        responseContentEl.innerHTML = `
+          <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <i class="fa fa-info-circle text-blue-500"></i>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">未检测到异常</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                  <p>雷达数据正常，无需进一步处理。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      // 错误响应
+      else {
+        responseContentEl.innerHTML = `
+          <div class="bg-red-50 border border-red-200 rounded-md p-4">
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <i class="fa fa-exclamation-circle text-red-500"></i>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">请求失败</h3>
+                <div class="mt-2 text-sm text-red-700">
+                  <pre class="whitespace-pre-wrap">${JSON.stringify(data, null, 2)}</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // 连接WebSocket
+    function connectToWebSocket() {
+      if (!conversationId) {
+        alert('请先发送请求获取conversation_id');
+        return;
+      }
+      
+      if (websocket && websocket.readyState === WebSocket.OPEN) {
+        websocket.close();
+      }
+      
+      // 创建WebSocket连接
+      websocket = new WebSocket(`ws://localhost:8100/conversations/ws/${conversationId}?user_id=1`);
+      
+      // 更新连接状态
+      connectionStatusEl.innerHTML = '<i class="fa fa-spinner fa-spin text-blue-500 mr-1"></i>正在连接WebSocket...';
+      connectionStatusEl.className = 'text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-600';
+      connectWebsocketEl.classList.add('hidden');
+      disconnectWebsocketEl.classList.remove('hidden');
+      sendWebsocketMessageEl.disabled = false;
+      
+      // 清空消息区域
+      websocketMessagesEl.innerHTML = '';
+      
+      // WebSocket事件处理
+      websocket.onopen = () => {
+        connectionStatusEl.innerHTML = '<i class="fa fa-circle text-green-500 mr-1"></i>WebSocket已连接';
+        connectionStatusEl.className = 'text-xs px-2 py-1 rounded-full bg-green-100 text-green-600';
+        appendWebSocketMessage('系统', 'WebSocket连接已建立', 'system');
+      };
+      
+      websocket.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          appendWebSocketMessage('AI助手', data.content || data.message, 'received');
+        } catch (e) {
+          appendWebSocketMessage('AI助手', event.data, 'received');
+        }
+      };
+      
+      websocket.onclose = (event) => {
+        connectionStatusEl.innerHTML = '<i class="fa fa-circle-o text-gray-400 mr-1"></i>WebSocket已断开';
+        connectionStatusEl.className = 'text-xs px-2 py-1 rounded-full bg-gray-200 text-gray-600';
+        connectWebsocketEl.classList.remove('hidden');
+        disconnectWebsocketEl.classList.add('hidden');
+        sendWebsocketMessageEl.disabled = true;
+        appendWebSocketMessage('系统', `WebSocket连接已关闭 (代码: ${event.code})`, 'system');
+      };
+      
+      websocket.onerror = (error) => {
+        appendWebSocketMessage('系统', `WebSocket错误: ${error.message}`, 'error');
+      };
+    }
+    
+    // 连接WebSocket按钮点击事件
+    connectWebsocketEl.addEventListener('click', connectToWebSocket);
+    
+    // 断开WebSocket连接
+    disconnectWebsocketEl.addEventListener('click', () => {
+      if (websocket) {
+        websocket.close();
+      }
+    });
+    
+    // 发送WebSocket消息
+    sendWebsocketMessageEl.addEventListener('click', () => {
+      const message = websocketMessageEl.value.trim();
+      if (message && websocket && websocket.readyState === WebSocket.OPEN) {
+        websocket.send(message);
+        appendWebSocketMessage('用户', message, 'sent');
+        websocketMessageEl.value = '';
+      }
+    });
+    
+    // 按Enter键发送WebSocket消息
+    websocketMessageEl.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendWebsocketMessageEl.click();
+      }
+    });
+    
+    // 添加WebSocket消息到显示区域
+    function appendWebSocketMessage(sender, message, type) {
+      let messageClass = '';
+      let icon = '';
+      
+      switch (type) {
+        case 'sent':
+          messageClass = 'bg-primary text-white rounded-tl-lg rounded-tr-lg rounded-bl-lg mb-2';
+          icon = '<i class="fa fa-user text-primary"></i>';
+          break;
+        case 'received':
+          messageClass = 'bg-white border border-gray-200 rounded-tl-lg rounded-tr-lg rounded-br-lg mb-2';
+          icon = '<i class="fa fa-robot text-secondary"></i>';
+          break;
+        case 'system':
+          messageClass = 'bg-blue-50 text-blue-700 rounded-md mb-2 text-xs';
+          icon = '<i class="fa fa-info-circle text-blue-500"></i>';
+          break;
+        case 'error':
+          messageClass = 'bg-red-50 text-red-700 rounded-md mb-2 text-xs';
+          icon = '<i class="fa fa-exclamation-circle text-red-500"></i>';
+          break;
+      }
+      
+      const messageEl = document.createElement('div');
+      messageEl.className = `flex ${type === 'sent' ? 'justify-end' : 'justify-start'}`;
+      
+      messageEl.innerHTML = `
+        <div class="${messageClass} p-3 max-w-[90%]">
+          <div class="flex items-center mb-1">
+            ${icon}
+            <span class="ml-1 text-xs font-medium">${sender}</span>
+            <span class="ml-2 text-xs text-gray-400">${new Date().toLocaleTimeString()}</span>
+          </div>
+          <div class="text-sm">${message}</div>
+        </div>
+      `;
+      
+      websocketMessagesEl.appendChild(messageEl);
+      websocketMessagesEl.scrollTop = websocketMessagesEl.scrollHeight;
+    }
+
+    // 初始化
+    window.addEventListener('load', () => {
+      // 禁用WebSocket连接按钮直到获取到conversation_id
+      connectWebsocketEl.disabled = true;
+      connectWebsocketEl.classList.add('opacity-50', 'cursor-not-allowed');
+    });
+  </script>
+</body>
+</html>

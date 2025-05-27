@@ -65,14 +65,16 @@ class ConversationService:
         self.kb_id = kb_id
 
         await websocket.accept()  # 接受WebSocket连接
-
+        print("websocket连接已接受")
         try:
             while True:
                 # 带30秒超时的消息接收（用户输入）
                 user_message = await self._receive_with_timeout()
+                print(f"{user_message},这是接收到的用户输入")
                 try:
-                    user_message = json.loads(user_message)
-                    query = user_message["query"]
+                    # user_message = json.loads(user_message)
+                    # query = user_message["query"]
+                    query = user_message
                     if not query:
                         await websocket.send_json({"error": "问题不能为空"})
                 except (json.JSONDecodeError, KeyError):
