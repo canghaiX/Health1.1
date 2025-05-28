@@ -1,0 +1,27 @@
+2025-05-26 16:39:37.433521 - DEBUG : <-<- Client connection at 127.0.0.1: 58725
+2025-05-26 16:39:37.434476 - DEBUG : ->>> b'12/26/3/5/5/28\ninitNewHumanG:\\PyAibote\\NewHuman\\model0.4falsefalsertmp://127.0.0.1/live/stream'
+2025-05-26 16:39:48.600461 - DEBUG : <-<- true
+2025-05-26 16:39:48.600461 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-26 16:39:49.928083 - DEBUG : <-<- true
+2025-05-26 16:39:49.928083 - DEBUG : ->>> b'10/9/41\naudioToLab127.0.0.1G:/PyAibote/NewHuman/testAudio/audio1.wav'
+2025-05-26 16:39:51.956113 - DEBUG : <-<- false
+2025-05-26 16:39:51.956113 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio1.wavtrue'
+2025-05-26 16:39:53.269615 - DEBUG : <-<- true
+2025-05-26 16:41:07.951614 - DEBUG : <-<- Client connection at 127.0.0.1: 58791
+2025-05-26 16:41:07.952611 - DEBUG : ->>> b'12/26/3/5/5/0\ninitNewHumanG:\\PyAibote\\NewHuman\\model0.4falsefalse'
+2025-05-26 16:41:12.220489 - DEBUG : <-<- true
+2025-05-26 16:41:12.220489 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-26 16:41:12.384051 - DEBUG : <-<- true
+2025-05-26 16:41:12.384051 - DEBUG : ->>> b'10/9/41\naudioToLab127.0.0.1G:/PyAibote/NewHuman/testAudio/audio1.wav'
+2025-05-26 16:41:14.419833 - DEBUG : <-<- false
+2025-05-26 16:41:14.420830 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio1.wavtrue'
+2025-05-26 16:41:22.854905 - DEBUG : <-<- true
+2025-05-26 21:55:49.427043 - DEBUG : <-<- Client connection at 127.0.0.1: 54402
+2025-05-26 21:55:49.428040 - DEBUG : ->>> b'12/26/3/5/5/28\ninitNewHumanG:\\PyAibote\\NewHuman\\model0.4falsefalsertmp://127.0.0.1/live/stream'
+2025-05-26 21:55:53.329265 - DEBUG : <-<- true
+2025-05-26 21:55:53.330263 - DEBUG : ->>> b'13/37\naddBackgroundG:/PyAibote/NewHuman/background/2.jpg'
+2025-05-26 21:55:53.472879 - DEBUG : <-<- true
+2025-05-26 21:55:53.473877 - DEBUG : ->>> b'10/9/41\naudioToLab127.0.0.1G:/PyAibote/NewHuman/testAudio/audio1.wav'
+2025-05-26 21:55:55.504448 - DEBUG : <-<- false
+2025-05-26 21:55:55.505446 - DEBUG : ->>> b'10/41/4\nhumanSpeakG:/PyAibote/NewHuman/testAudio/audio1.wavtrue'
+2025-05-26 21:56:03.934845 - DEBUG : <-<- true
