@@ -9,7 +9,7 @@ from app.config import HRA_FILEBASE_DIR
 #文件存储路径
 UPLOAD_DIR = HRA_FILEBASE_DIR  
 
-def save_uploaded_file(file: UploadFile, db: Session, user_id: int = None):
+def save_uploaded_file(file: UploadFile, db: Session, user_id: int ):
     # 确保目录存在
     os.makedirs(UPLOAD_DIR, exist_ok=True)
     

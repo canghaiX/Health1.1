@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>HRA报告解读服务测试页面</title>
+    <style>
+        body {
+            font-family: '微软雅黑', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            overflow: hidden;
+            border-bottom: 2px solid #ccc;
+        }
+
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            font-size: 16px;
+        }
+
+        .tab button.active {
+            background-color: #007bff;
+            color: white;
+            border-bottom: 2px solid #007bff;
+        }
+
+        .tabcontent {
+            display: none;
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-top: none;
+            margin-top: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #chat-history {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .user-message {
+            background-color: #e9f5ff;
+            margin-left: 20px;
+        }
+
+        .assistant-message {
+            background-color: #f5f5f5;
+            margin-right: 20px;
+        }
+
+        .loading {
+            color: #666;
+            font-size: 0.9em;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; color: #007bff; margin-bottom: 30px;">HRA报告解读服务测试工具</h1>
+    
+    <div class="tab">
+        <button class="tablinks active" onclick="openTab(event, 'file-upload')">文件上传(PDF)</button>
+        <button class="tablinks" onclick="openTab(event, 'knowledge-chat')">知识库问答</button>
+    </div>
+
+    <div id="file-upload" class="tabcontent container">
+        <h2>上传HRA报告(PDF)</h2>
+        <form id="pdfUploadForm">
+            <div class="form-group">
+                <label>用户ID:</label>
+                <input type="number" id="uploadUserId" required>
+            </div>
+            <div class="form-group">
+                <label>选择PDF文件:</label>
+                <input type="file" id="pdfFile" accept=".pdf" required>
+            </div>
+            <button type="submit">上传文件</button>
+            <div id="uploadResult" style="margin-top: 15px;"></div>
+        </form>
+    </div>
+
+    <div id="knowledge-chat" class="tabcontent container" style="display: none;">
+        <h2>知识库问答 (含HRA数据)</h2>
+        <div class="form-group">
+            <label>用户ID:</label>
+            <input type="number" id="chatUserId" required value="1">
+        </div>
+        <div class="form-group">
+            <label>知识库编号 (可选):</label>
+            <input type="text" id="kbId">
+        </div>
+        <div class="form-group">
+            <label>提问内容:</label>
+            <textarea id="query" rows="3" required>我的健康风险如何？</textarea>
+        </div>
+        <div class="form-group">
+            <label>是否启用流式输出:</label>
+            <input type="checkbox" id="stream"> 是
+        </div>
+        <div class="form-group">
+            <label>模型名称:</label>
+            <select id="modelName">
+                <option value="qwen2.5-32b-instruct">qwen2.5-32b-instruct</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>温度值 (0-2):</label>
+            <input type="number" id="temperature" step="0.1" value="0.1" min="0" max="2">
+        </div>
+        <div class="form-group">
+            <label>相关结果数量:</label>
+            <input type="number" id="limit" value="3" min="1" max="10">
+        </div>
+        <button id="sendBtn">发送提问</button>
+        <button id="clearHistoryBtn">清除对话历史</button>
+        <div class="loading">正在获取回答，请稍候...</div>
+        
+        <h3>对话历史</h3>
+        <div id="chatHistory" class="form-group"></div>
+    </div>
+
+    <script>
+        // 选项卡切换逻辑
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        // 文件上传功能
+        document.getElementById('pdfUploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const userId = document.getElementById('uploadUserId').value;
+            const file = document.getElementById('pdfFile').files[0];
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('user_id', userId);
+
+            try {
+                const response = await fetch('http://localhost:8100/files/upload/pdf', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        // 自动处理文件类型，无需设置Content-Type
+                    }
+                });
+
+                if (!response.ok) throw new Error('上传失败');
+                const data = await response.json();
+                document.getElementById('uploadResult').innerHTML = `
+                    <div style="color: green;">上传成功！</div>
+                    <p>文件ID: ${data.file_id}</p>
+                    <p>文件名: ${data.file_name}</p>
+                    <p>上传时间: ${data.upload_time}</p>
+                `;
+            } catch (error) {
+                document.getElementById('uploadResult').innerHTML = `<div style="color: red;">${error.message}</div>`;
+            }
+        });
+
+         // 新增：统一数据处理函数
+        function processSseData(data) {
+            // 1. 去除首尾空白
+            const trimmedData = data.trim();
+            
+            // 2. 过滤纯心跳行（支持多种格式）
+            if (trimmedData.startsWith(': ping') || trimmedData === 'data: : ping') {
+                return null;
+            }
+            
+            // 3. 处理SSE格式数据（带data:前缀的情况）
+            if (trimmedData.startsWith('data:')) {
+                const jsonPart = trimmedData.replace('data:', '').trim();
+                try {
+                    return JSON.parse(jsonPart); // 尝试解析JSON
+                } catch (error) {
+                    console.warn('无效JSON格式:', jsonPart);
+                    return null;
+                }
+            }
+            
+            // 4. 处理普通JSON数据（非流式响应）
+            try {
+                return JSON.parse(trimmedData); // 直接尝试解析
+            } catch (error) {
+                return null; // 非JSON数据视为无效
+            }
+        }
+
+        // 知识库问答功能
+        let chatHistory = [];
+        // 知识库问答功能
+        document.getElementById('sendBtn').addEventListener('click', async function() {
+            const userId = document.getElementById('chatUserId').value;
+            const kbId = document.getElementById('kbId').value;
+            const query = document.getElementById('query').value;
+            const stream = document.getElementById('stream').checked;
+            const modelName = document.getElementById('modelName').value;
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            const limit = parseInt(document.getElementById('limit').value);
+            const loading = document.querySelector('.loading');
+            
+            loading.style.display = 'block';
+            document.getElementById('chatHistory').innerHTML += '<div class="loading">用户提问: ' + query + '</div>';
+
+            try {
+                const body = {
+                    user_id: userId,
+                    kbId: kbId,
+                    query: query,
+                    history: chatHistory,
+                    stream: stream,
+                    modelName: modelName,
+                    temperature: temperature,
+                    limit: limit
+                };
+
+                if (stream) {
+                    // 处理流式响应（改为文本格式）
+                    const eventSource = new EventSource('http://localhost:8100/knowledge_base_chat_with_hra/', {
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams(body)
+                    });
+
+                    eventSource.onmessage = function(event) {
+                        // 直接使用文本，不解析JSON
+                        addMessageToHistory('assistant', event.data, 'stream');
+                    };
+
+                    eventSource.onerror = function(error) {
+                        loading.style.display = 'none';
+                        addMessageToHistory('system', '回答出错，请重试');
+                        eventSource.close();
+                    };
+                } else {
+                    // 处理非流式响应（改为文本格式）
+                    const response = await fetch('http://localhost:8100/knowledge_base_chat_with_hra/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(body)
+                    });
+
+                    if (!response.ok) throw new Error('请求失败');
+                    const answer = await response.text(); // 获取纯文本响应
+                    try {
+                         // 移除前缀并修剪空格
+                        const cleanedData = answer
+                            .replace(/^ping - \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d+\+\d{2}:\d{2} data: ?/, '')
+                            .trim();
+                        
+                        // 提取answer字段内容（从"answer": "到", "files": [之间）
+                        const answerRegex = /"answer":\s*"(.*?)"\s*,\s*"files":\s*\[/s;
+                        const match = cleanedData.match(answerRegex);
+                        
+                        if (match && match[1]) {
+                            // 处理转义字符，还原为原始格式
+                            let formattedAnswer = match[1]
+                                .replace(/\\n/g, '\n')    // 还原换行符
+                                .replace(/\\"/g, '"')     // 还原引号
+                                .replace(/\\\\/g, '\\');  // 还原反斜杠
+                            
+                            // 将Markdown格式转换为HTML（可选，根据需要）
+                            formattedAnswer = formattedAnswer
+                                .replace(/#+\s+(.*?)\n/g, '<h3>$1</h3>') // 转换标题
+                                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // 转换粗体
+                                .replace(/\n/g, '<br>'); // 转换换行
+                            
+                            addMessageToHistory('assistant', formattedAnswer);
+                        } else {
+                            // 如果没有匹配到answer模式，尝试直接解析整个JSON
+                            const jsonData = JSON.parse(cleanedData);
+                            const fallbackAnswer = jsonData.answer || JSON.stringify(jsonData);
+                            addMessageToHistory('assistant', fallbackAnswer);
+                        }
+                    } catch (error) {
+                        console.error('响应处理失败:', error);
+                        console.log('原始响应:', answer); // 调试用
+                        console.log('清洗后数据:', cleanedData); // 调试用
+                        addMessageToHistory('assistant', '抱歉，无法解析服务器响应');
+                    } finally {
+                        loading.style.display = 'none';
+                    }
+                    //     // 正则匹配去除前缀（支持动态时间戳）
+                    //     const cleanedData = answer.replace(/^ping - \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d+\+\d{2}:\d{2} data: /, '');
+                    //     // const cleanedData = rawText
+                    //     //     .replace(/^ping - \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d+\+\d{2}:\d{2} data: ?/, '')
+                    //     //     .trim(); // 移除首尾所有空白字符
+
+                    //     // 解析为JSON
+                    //     // const jsonData = JSON.parse(cleanedData);
+                        
+                    //     // // 提取需要的回答内容（假设JSON结构包含answer字段）
+                    //     // const answer = jsonData.answer || JSON.stringify(jsonData); // 支持不同结构
+                        
+                    //     // addMessageToHistory('assistant', answer);
+                    //     addMessageToHistory('assistant', cleanedData);
+                    // } catch (error) {
+                    //     // 处理解析异常（如格式错误、前缀不匹配等）
+                    //     console.error('响应处理失败:', error);
+                    //     addMessageToHistory('assistant', '抱歉，无法解析服务器响应');
+                    // } finally {
+                    //     loading.style.display = 'none';
+                    // }
+
+                //     addMessageToHistory('assistant', answer);
+                //     loading.style.display = 'none';
+                }
+
+                // 添加用户提问到历史
+                addMessageToHistory('user', query);
+                chatHistory.push({ role: 'user', content: query });
+            } catch (error) {
+                loading.style.display = 'none';
+                addMessageToHistory('system', `错误: ${error.message}`);
+            }
+        });
+
+        // 清除对话历史
+        document.getElementById('clearHistoryBtn').addEventListener('click', function() {
+            chatHistory = [];
+            document.getElementById('chatHistory').innerHTML = '';
+        });
+
+        // 向对话历史添加消息
+        function addMessageToHistory(role, content, type = 'full') {
+            const historyDiv = document.getElementById('chatHistory');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}-message`;
+            
+            if (role === 'user') {
+                messageDiv.innerHTML = `<strong>用户:</strong> ${content}`;
+            } else if (role === 'assistant') {
+                if (type === 'stream') {
+                    messageDiv.innerHTML = `<strong>助手:</strong> ${content}`;
+                } else {
+                    messageDiv.innerHTML = `<strong>助手:</strong> ${content}`;
+                }
+            } else {
+                messageDiv.innerHTML = `<em>${content}</em>`;
+            }
+            
+            historyDiv.appendChild(messageDiv);
+            historyDiv.scrollTop = historyDiv.scrollHeight; // 自动滚动到底部
+        }
+
+        // 初始化默认显示文件上传选项卡
+        openTab({ currentTarget: document.querySelector('.tablinks:first-child') }, 'file-upload');
+    </script>
+</body>
+</html>

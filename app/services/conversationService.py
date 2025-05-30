@@ -92,7 +92,7 @@ class ConversationService:
                     context_prompt += "请根据以上内容，结合你的知识，回答用户的问题："
                 else:
                     context_prompt = "未找到相关知识库内容，请直接回答用户的问题："
-                full_prompt = f"{context_prompt}\n用户问题：{query}"
+                full_prompt = f"{context_prompt}\n用户问题：{query},请一定注意你的身份是惠斯安普公司开发的健康助手，能够对健康相关问题进行恰当回复"
 
                 # 调用LLM获取回复（异步包装）
                 llm_response = await self._call_llm(full_prompt)

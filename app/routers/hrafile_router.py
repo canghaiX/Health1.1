@@ -1,5 +1,5 @@
 # app/routers/file_router.py
-from fastapi import APIRouter, File, UploadFile, Depends, HTTPException,FastAPI
+from fastapi import APIRouter, File, UploadFile, Depends, HTTPException,FastAPI,Body
 from sqlalchemy.orm import Session
 from app.services.hrafile_service import save_uploaded_file
 from app.database import get_db
@@ -16,7 +16,7 @@ router = APIRouter(
 async def upload_pdf_file(
     file: UploadFile = File(...,max_size=50 * 1024 * 1024),  #限制文件上传大小为50MB
     db: Session = Depends(get_db),
-    user_id:int = None
+    user_id: int = Body(1, description="用户ID")
 ):
     # 验证文件类型
     if not file.content_type.startswith("application/pdf"):
