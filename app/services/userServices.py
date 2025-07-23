@@ -3,10 +3,11 @@ from typing import List
 from pydantic import BaseModel
 from app.models.user import User
 
-from app.database import SessionLocal
+#from app.database.utils import SessionLocal
+from app.database.session import AsyncSessionLocal
 from app.schemas.userSchemas import UserOut, UserIn
 
-db = SessionLocal()
+db = AsyncSessionLocal()      #修改为异步操作
 
 
 class UserService(BaseModel):

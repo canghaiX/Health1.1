@@ -9,11 +9,7 @@ import json
 from app.routers.rag_knowledge import retrieval
 
 from openai import AsyncOpenAI,OpenAI
-#水科院api
-# client = AsyncOpenAI(
-#     api_key="sk-7947b081778614c7fe1cda",
-#     base_url="https://compatible-mode/v1"
-# )
+
 #qwen模型api，模型名称为qwen2.5-32b-instruct
 client = AsyncOpenAI(
     api_key='sk-7548be9550ca4f15a8b211deddbfc9e3',
@@ -60,6 +56,7 @@ async def knowledge_base_chat(
             logger.info('检索结果为空')
         else:
             #logger.info(source['files'])
+            print(source['files'])
             result = source['files']
                                 
             input = f"请依据检索结果，精准回答用户问题，若结果无关，忽略检索内容进行作答。'用户问题:{query}\n''检索结果:{result}\n '。"

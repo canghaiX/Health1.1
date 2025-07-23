@@ -1,6 +1,6 @@
 import re
 
-def split_and_overlap(sub_lines, max_chunk_size=5500, overlap=500):
+def split_and_overlap(sub_lines, max_chunk_size=500, overlap=100):
     """
     将子行按最大长度进行拆分，并添加重叠区域
     :param sub_lines: 当前标题下的行
@@ -33,7 +33,7 @@ def split_and_overlap(sub_lines, max_chunk_size=5500, overlap=500):
 
     return final_chunks
 
-def split_markdown_into_chunks(markdown_text, max_chunk_size=5500, overlap=500):
+def split_markdown_into_chunks(markdown_text, max_chunk_size=500, overlap=100):
     # 根据每行是否以 '#' 开头确定标题行索引
     title_indices = []
     lines = markdown_text.split('\n')
@@ -148,7 +148,7 @@ def split_markdown_into_chunks(markdown_text, max_chunk_size=5500, overlap=500):
 
     return chunks
 
-def process_markdown_file(file_path, max_chunk_size=5500, overlap=500):
+def process_markdown_file(file_path, max_chunk_size=500, overlap=100):
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
             markdown_text = file.read()
@@ -196,7 +196,7 @@ def split_markdown_table(file_path, header_lines=5, max_characters=5000):
         return []
 
 if __name__ == "__main__":
-    file_path = '/home/hjb/Health1.1/knowledge_base/test/2015年呼吸内科新增指南及共识大汇总--来源 中华医学会.md'
+    file_path = ''
     chunks = process_markdown_file(file_path)
     # chunks = split_markdown_table(file_path)
     #print(chunks)

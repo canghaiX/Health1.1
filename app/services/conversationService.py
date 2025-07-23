@@ -1,6 +1,6 @@
-#检查retrieval返回数据的格式是什么样的，87行用到了返回的格式用到了[{"content":"xxx","score":0.x}]的格式
-#_update_llm_responses这个函数只记录了模型的回复，而忽略了用户的问题。
-#_cleanup中为什么要向客户端发送总结内容？
+# 检查retrieval返回数据的格式是什么样的，87行用到了返回的格式用到了[{"content":"xxx","score":0.x}]的格式
+# _update_llm_responses这个函数只记录了模型的回复，而忽略了用户的问题。
+# _cleanup中为什么要向客户端发送总结内容？
 
 import asyncio
 from datetime import datetime
@@ -15,6 +15,12 @@ from starlette.websockets import WebSocketDisconnect  # 正确导入断开异常
 from app.models.conversation_model import ConversationSummary
 from app.routers.rag_knowledge import retrieval
 from app.utils.llm_client import get_llm_response  # LLM调用函数（需处理异常）
+from openai import AsyncOpenAI
+
+client = AsyncOpenAI(
+    api_key='sk-7548be9550ca4f15a8b211deddbfc9e3',
+    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
+)
 
 
 class ConversationService:
@@ -68,7 +74,7 @@ class ConversationService:
         print("websocket连接已接受")
         try:
             while True:
-                # 带30秒超时的消息接收（用户输入）
+                # 带60秒超时的消息接收（用户输入）
                 user_message = await self._receive_with_timeout()
                 print(f"{user_message},这是接收到的用户输入")
                 try:
@@ -119,7 +125,7 @@ class ConversationService:
         try:
             return await asyncio.wait_for(
                 self.websocket.receive_text(),
-                timeout=30.0  # 超时时间：30秒
+                timeout=60.0  # 超时时间：60秒
             )
         except asyncio.TimeoutError:
             raise  # 抛给外层处理
@@ -165,7 +171,7 @@ class ConversationService:
             self.db.close()
             await self.websocket.close(
                 code=status.WS_1011_INTERNAL_ERROR,
-                reason=f"系统错误，请重试{e}"[:100] 
+                reason=f"系统错误，请重试{e}"[:100]
             )
 
     async def _generate_summary(self) -> str:
@@ -184,6 +190,8 @@ class ConversationService:
     def _save_summary_to_db(self, summary: str):
         """写入总结到数据库（带事务控制）"""
         try:
+            # 没有就插入 有就更新
+            #    待修改
             db_summary = ConversationSummary(
                 uuid=self.conversation_id,
                 summary=summary,
@@ -196,3 +204,27 @@ class ConversationService:
         except Exception as e:
             self.db.rollback()  # 异常时回滚
             raise RuntimeError(f"数据库写入失败：{str(e)}")
+
+    async def talk_api_numberPeople(self, input: str):
+
+        messages = [
+            {
+                'role': 'system',
+                # todo content需要修改
+                'content': '你现在的身份是惠斯安普公司开发的医疗助手大模型，能够根据病人情况给出身体健康建议。给出的建议要是口语化文本，能直接读出来，不要带有逗号句号以外的标点符号，不要用markdown标记'
+            },
+            {
+                'role': 'user',
+                'content': f'{input}'
+            },
+        ]
+        response = await client.chat.completions.create(
+            model='qwen2.5-32b-instruct',
+            messages=messages,
+            stream=False,
+            temperature=0.1
+        )
+        if (response.choices[0].message.content):
+            return response.choices[0].message.content
+        else:
+            return ''

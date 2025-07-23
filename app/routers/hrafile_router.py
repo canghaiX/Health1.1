@@ -2,7 +2,7 @@
 from fastapi import APIRouter, File, UploadFile, Depends, HTTPException,FastAPI,Body
 from sqlalchemy.orm import Session
 from app.services.hrafile_service import save_uploaded_file
-from app.database import get_db
+from app.database.utils import get_db
 
 # # 创建一个独立的 FastAPI 应用,用作测试
 # app = FastAPI(title="独立文件上传服务")

@@ -16,14 +16,15 @@ from pymilvus import (
     AnnSearchRequest,
     WeightedRanker,
     RRFRanker,
-    Function,
-    FunctionType
+    # Function,
+    # FunctionType
 )
+
 from fastapi import FastAPI,Body,HTTPException
 import os
 from typing import Optional
 import shutil
-from langchain.embeddings import HuggingFaceBgeEmbeddings
+# from langchain.embeddings import HuggingFaceBgeEmbeddings
 
 # #pdf解析处理用的包
 # import pdfplumber
@@ -43,26 +44,30 @@ from openai import OpenAI
 router = APIRouter()
 logger = get_logger(__name__)
 client = OpenAI(
-    api_key="sk-762b0529add947b081778614c7fe1cda",#问jinbo
+    api_key="sk-762b0529add947b081778614c7fe1cda",
     base_url="https://compatible-mode/v1"
 )
 
 # 文件存储目录配置
-base_dir = "/home/hjb/Health1.1/knowledge_base"   #放docx以及其它知识库文件
+base_dir = "/home/hsap/hsap_knowledge_base"   #放docx以及其它知识库文件
 os.makedirs(base_dir, exist_ok=True)
-collection_mapping_dir = "/home/hjb/Health1.1/collection_mapping.json"
+collection_mapping_dir = "/home/hsap/Health1.1/collection_mapping.json"
 
 # 指定本地嵌入模型路径
-model_path = "/home/hjb/dsft/bge-m3"
+model_path = "/home/hsap/hsap_model/bge-m3"
 #指定本地rerank模型路径
-rerank_model_path = "/home/hjb/dsft/bge-reranker-large"
+rerank_model_path = "/home/hsap/hsap_model/bge-reranker-large"
 #md解析路径
-output_dir = '/home/hjb/Health1.1/knowledge_base'
-#mineru解析url
-url = 'http://localhost:7000/parse-files/'
+output_dir = '/home/hsap/hsap_knowledge_base'
+# #mineru解析url,没用到
+# url = 'http://localhost:7000/parse-files/'
 
 # 加载模型和分词器
 tokenizer = AutoTokenizer.from_pretrained(model_path,local_files_only = True)
+# from transformers import XLMRobertaModel, AutoConfig
+
+# config = AutoConfig.from_pretrained(model_path, local_files_only=True)
+# model = XLMRobertaModel(config)
 model = AutoModel.from_pretrained(model_path,local_files_only = True)
 model.eval()
 
@@ -225,7 +230,15 @@ def generate_valid_uuid():
 """
 
 # 连接 Milvus
-connections.connect(uri="/home/hjb/Health1.1/milvus.db")
+# connections.connect(uri="/home/hsap/Health1.1/milvus.db")
+
+# connections.connect(
+#     uri="/home/hsap/Health1.1/milvus.db",
+#     mode="standalone"  # 指定为独立模式
+# )
+
+connections.connect(uri="http://222.30.145.22:19530")
+
 #  #全局变量修改为单例模式，用于存储连接状态
 # _milvus_connection = None
 
@@ -839,6 +852,10 @@ async def search_by_file(kbId: str = Body(...),file: UploadFile = File(...)):
         
         #混合检索
         query_embedding = generate_embeddings(query_texts)
+        # print(f"这是混合检索中的稀疏嵌入{query_embedding['sparse']}")
+        # print(f"这是混合检索中的稀疏嵌入的第一行{query_embedding['sparse'][0]}")
+        # from scipy.sparse import csr_matrix
+        # print(f"这是转换维度后的张量{query_embedding['sparse'][0].reshape(1, -1)}")
         
         #dense_search_params = {"metric_type": "COSINE", "params": {"nprobe": 64}}
         dense_search_params = {"metric_type": "IP", "params": {"nprobe": 64}}
@@ -850,9 +867,10 @@ async def search_by_file(kbId: str = Body(...),file: UploadFile = File(...)):
         sparse_search_params = {"metric_type": "IP", "params": {"top_k": 100}}
         
         sparse_req = AnnSearchRequest(
-            [query_embedding["sparse"]._getrow(0)], "sparse_vector", sparse_search_params, limit=50
+            # [query_embedding["sparse"].toarray()[0]], "sparse_vector", sparse_search_params, limit=50
+            query_embedding['sparse'][0].reshape(1,-1),"sparse_vector", sparse_search_params, limit=50
         )
-        
+
         """
         sparse_search_params = {"metric_type": "BM25"}
         sparse_req = AnnSearchRequest(
@@ -880,7 +898,7 @@ async def search_by_file(kbId: str = Body(...),file: UploadFile = File(...)):
         results = col.search(
             data=query_embedding,
             anns_field="vector",
-            param=search_params,
+            param=search_params,[query_embedding['sparse'][0]]
             limit=10,
             output_fields=["text", "filename","fileid"]
         )[0]
@@ -1070,6 +1088,7 @@ def retrieval(kbId: Optional[str] = Body(None),query: str = Body(...),limit: int
     #查询query文本向量化
     #query_embedding = emb_text(query,is_query=True)
     query_embedding = generate_embeddings(query)
+    # print(f"这是稀疏嵌入{query_embedding['sparse']}")
     
     #首先判断kbId字段是否传入，若传入则进行对应知识库检索，否则进行所有知识库检索
     #所有知识库检索
@@ -1106,7 +1125,8 @@ def retrieval(kbId: Optional[str] = Body(None),query: str = Body(...),limit: int
                 )
                 """
                 sparse_req = AnnSearchRequest(
-                    [query_embedding["sparse"]._getrow(0)], "sparse_vector", sparse_search_params, limit=(limit+50)
+                    # [query_embedding["sparse"]._getrow(0)], "sparse_vector", sparse_search_params, limit=(limit+50)
+                    query_embedding['sparse'][0].reshape(1, -1), "sparse_vector", sparse_search_params, limit=(limit+50)
                 )
                 
                 #sparse_weight=0.6
@@ -1244,7 +1264,8 @@ def retrieval(kbId: Optional[str] = Body(None),query: str = Body(...),limit: int
             sparse_search_params = {"metric_type": "IP", "params": {"top_k": 100}}
             
             sparse_req = AnnSearchRequest(
-                [query_embedding["sparse"]._getrow(0)], "sparse_vector", sparse_search_params, limit=(limit+50)
+                # [query_embedding["sparse"]._getrow(0)], "sparse_vector", sparse_search_params, limit=(limit+50)
+                query_embedding['sparse'][0].reshape(1, -1), "sparse_vector", sparse_search_params, limit=(limit+50)
             )
             """
             sparse_search_params = {"metric_type": "BM25"}

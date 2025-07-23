@@ -33,8 +33,8 @@ class Settings():
     # MYSQL_DATABASE: str = "health"
     #以下为111服务器配置
     MYSQL_USER: str = "hsap"
-    MYSQL_PASSWORD: str = "666666"
-    MYSQL_DATABASE: str = "health_data"
+    MYSQL_PASSWORD: str = "yanshandaxue"
+    MYSQL_DATABASE: str = "hsap"
 
     @property
     def database_url(self) -> str:

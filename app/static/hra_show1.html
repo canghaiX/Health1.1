@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>HRA报告解读服务测试工具</title>
+    <style>
+        body {
+            font-family: '微软雅黑', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            overflow: hidden;
+            border-bottom: 2px solid #ccc;
+        }
+
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            font-size: 16px;
+        }
+
+        .tab button.active {
+            background-color: #007bff;
+            color: white;
+            border-bottom: 2px solid #007bff;
+        }
+
+        .tabcontent {
+            display: none;
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-top: none;
+            margin-top: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .qa-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .qa-col {
+            flex: 1;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #chat-history {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .user-message {
+            background-color: #e9f5ff;
+            margin-left: 20px;
+        }
+
+        .assistant-message {
+            background-color: #f5f5f5;
+            margin-right: 20px;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            color: #666;
+            font-size: 0.9em;
+            display: none;
+        }
+
+        /* 新增：动态加载动画样式 */
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .health-risk {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .health-risk ol {
+            padding-left: 25px;
+        }
+
+        .health-risk li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .health-tip {
+            font-weight: bold;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px dashed #ddd;
+        }
+
+        .section-title {
+            font-weight: bold;
+            margin-top: 15px;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+<h1 style="text-align: center; color: #007bff; margin-bottom: 30px;">HRA报告解读服务测试工具</h1>
+
+<div class="tab">
+    <button class="tablinks active" onclick="openTab(event, 'file-upload')">文件上传(PDF)</button>
+    <button class="tablinks" onclick="openTab(event, 'knowledge-chat')">知识库问答</button>
+</div>
+
+<div id="file-upload" class="tabcontent container">
+    <h2>上传HRA报告(PDF)</h2>
+    <form id="pdfUploadForm">
+        <div class="form-group">
+            <label>用户ID:</label>
+            <input type="number" id="uploadUserId" required>
+        </div>
+        <div class="form-group">
+            <label>选择PDF文件:</label>
+            <input type="file" id="pdfFile" accept=".pdf" required>
+        </div>
+        <button type="submit">上传文件</button>
+        <div id="uploadResult" style="margin-top: 15px;"></div>
+    </form>
+</div>
+
+<div id="knowledge-chat" class="tabcontent container" style="display: none;">
+    <h2>知识库问答 (含HRA数据)</h2>
+    <div class="form-group">
+        <label>用户ID:</label>
+        <input type="number" id="chatUserId" required value="1">
+    </div>
+    <div class="form-group">
+        <label>知识库编号 (可选):</label>
+        <input type="text" id="kbId">
+    </div>
+    <div class="form-group">
+        <label>提问内容:</label>
+        <textarea id="query" rows="3" required>我的健康风险如何？</textarea>
+    </div>
+    <div class="form-group">
+        <label>是否启用流式输出:</label>
+        <input type="checkbox" id="stream"> 是
+    </div>
+    <div class="form-group">
+        <label>模型名称:</label>
+        <select id="modelName">
+            <option value="qwen2.5-32b-instruct">qwen2.5-32b-instruct</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>温度值 (0-2):</label>
+        <input type="number" id="temperature" step="0.1" value="0.1" min="0" max="2">
+    </div>
+    <div class="form-group">
+        <label>相关结果数量:</label>
+        <input type="number" id="limit" value="3" min="1" max="10">
+    </div>
+
+    <!-- 问诊QA输入区域 -->
+    <div class="form-group">
+        <label>问诊QA (5行问答输入):</label>
+        <div id="qa-rows">
+            <!-- 动态生成的5行输入框 -->
+        </div>
+    </div>
+
+    <button id="sendBtn">发送提问</button>
+    <button id="clearHistoryBtn">清除对话历史</button>
+    <div class="loading" id="loadingIndicator">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">正在获取回答，请稍候...</div>
+    </div>
+
+    <h3>对话历史</h3>
+    <div id="chatHistory" class="form-group"></div>
+</div>
+
+<script>
+    // 选项卡切换逻辑
+    function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+
+    // 文件上传功能
+    document.getElementById('pdfUploadForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const userId = document.getElementById('uploadUserId').value;
+        const file = document.getElementById('pdfFile').files[0];
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('user_id', userId);
+
+        try {
+            showLoading(); // 显示加载动画
+            const response = await fetch('http://222.30.145.22:8100/files/upload/pdf', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    // 自动处理文件类型，无需设置Content-Type
+                }
+            });
+
+            if (!response.ok) throw new Error('上传失败');
+            const data = await response.json();
+            document.getElementById('uploadResult').innerHTML = `
+                    <div style="color: green;">上传成功！</div>
+                    <p>文件ID: ${data.file_id}</p>
+                    <p>文件名: ${data.file_name}</p>
+                    <p>上传时间: ${data.upload_time}</p>
+                `;
+        } catch (error) {
+            document.getElementById('uploadResult').innerHTML = `<div style="color: red;">${error.message}</div>`;
+        } finally {
+            hideLoading(); // 隐藏加载动画
+        }
+    });
+
+    // 处理SSE格式数据
+    function processSseData(data) {
+        const trimmedData = data.trim();
+        if (trimmedData.startsWith(': ping') || trimmedData === 'data: : ping') return null;
+        if (trimmedData.startsWith('data:')) {
+            const jsonPart = trimmedData.replace('data:', '').trim();
+            try {
+                return JSON.parse(jsonPart);
+            } catch {
+                return null;
+            }
+        }
+        try {
+            return JSON.parse(trimmedData);
+        } catch {
+            return null;
+        }
+    }
+
+    // 全局变量
+    let chatHistory = [];
+    let que_ans = []; // 存储问诊QA数据
+    let loadingInterval; // 加载状态文本动画计时器
+    let currentStreamingData = {
+        answer: "",      // 回答流式内容
+        questions: ""    // 问题流式内容
+    };
+
+    // 初始化问诊QA输入区域
+    function initQaRows() {
+        const qaRowsContainer = document.getElementById('qa-rows');
+        qaRowsContainer.innerHTML = '';
+
+        for (let i = 0; i < 5; i++) {
+            const row = document.createElement('div');
+            row.className = 'qa-row';
+            row.id = `qa-row-${i}`;
+
+            // 问题列
+            const questionCol = document.createElement('div');
+            questionCol.className = 'qa-col';
+            const questionLabel = document.createElement('label');
+            questionLabel.textContent = '问题';
+            const questionInput = document.createElement('input');
+            questionInput.type = 'text';
+            questionInput.id = `question-${i}`;
+            questionInput.placeholder = `问题 ${i + 1}`;
+
+            // 回答列
+            const answerCol = document.createElement('div');
+            answerCol.className = 'qa-col';
+            const answerLabel = document.createElement('label');
+            answerLabel.textContent = '回答';
+            const answerInput = document.createElement('input');
+            answerInput.type = 'text';
+            answerInput.id = `answer-${i}`;
+            answerInput.placeholder = '回答';
+
+            // 组装行
+            questionCol.appendChild(questionLabel);
+            questionCol.appendChild(questionInput);
+            answerCol.appendChild(answerLabel);
+            answerCol.appendChild(answerInput);
+            row.appendChild(questionCol);
+            row.appendChild(answerCol);
+            qaRowsContainer.appendChild(row);
+
+            // 输入事件监听
+            questionInput.addEventListener('input', updateQueAns);
+            answerInput.addEventListener('input', updateQueAns);
+        }
+    }
+
+    // 更新que_ans变量
+    function updateQueAns() {
+        que_ans = [];
+        for (let i = 0; i < 5; i++) {
+            const question = document.getElementById(`question-${i}`).value.trim();
+            const answer = document.getElementById(`answer-${i}`).value.trim();
+            que_ans.push(question ? `${question}|${answer || '不清楚'}` : '');
+        }
+    }
+
+    // 验证问诊QA输入
+    function validateQaInput() {
+        let isValid = true;
+        for (let i = 0; i < 5; i++) {
+            const question = document.getElementById(`question-${i}`).value.trim();
+            const answer = document.getElementById(`answer-${i}`).value.trim();
+            if (question && !answer) {
+                document.getElementById(`answer-${i}`).setAttribute('style', 'border-color: red;');
+                isValid = false;
+            } else {
+                document.getElementById(`answer-${i}`).removeAttribute('style');
+            }
+        }
+        return isValid;
+    }
+
+    // 绑定API返回的que_ans到表单
+    function bindQueAnsToForm(queAnsArray) {
+        if (!Array.isArray(queAnsArray) || queAnsArray.length === 0) return;
+
+        for (let i = 0; i < 5; i++) {
+            const questionInput = document.getElementById(`question-${i}`);
+            if (questionInput) {
+                const questions = queAnsArray.join(',').split(',');
+                questionInput.value = questions[i] || '';
+                const event = new Event('input');
+                questionInput.dispatchEvent(event);
+            }
+        }
+    }
+
+    // 格式化健康风险回答
+    function formatHealthAnswer(answerText) {
+        if (!answerText) return '';
+
+        // 替换Markdown样式为HTML
+        let formatted = answerText
+            .replace(/\\n/g, '\n')
+            .replace(/\\"/g, '"')
+            .replace(/\\\\/g, '\\');
+
+        // 处理章节标题
+        formatted = formatted.replace(/^(\d+\.\s+[^\n]+)/gm, '<div class="section-title">$1</div>');
+
+        // 处理有序列表
+        formatted = formatted.replace(/^(\d+\.\s+)/gm, '<li>$1');
+        formatted = formatted.replace(/^(\s*$)/gm, '</li>');
+        formatted = formatted.replace(/<li>/g, '<li class="health-risk-item">');
+
+        // 处理饮食/运动建议
+        formatted = formatted.replace(/饮食建议:/, '<div class="health-tip">饮食建议:</div>');
+        formatted = formatted.replace(/运动建议:/, '<div class="health-tip">运动建议:</div>');
+
+        // 包裹有序列表
+        formatted = formatted.replace(/<li class="health-risk-item">/g, '<ol class="health-risk"><li class="health-risk-item">');
+        formatted = formatted.replace(/<\/li>$/gm, '</li></ol>');
+
+        return formatted;
+    }
+
+    // 显示加载动画
+    function showLoading() {
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        loadingIndicator.style.display = 'flex';
+
+        // 添加加载状态文本变化效果
+        let dots = 1;
+        const loadingText = loadingIndicator.querySelector('.loading-text');
+        loadingInterval = setInterval(() => {
+            loadingText.textContent = `正在获取回答${'.'.repeat(dots)}`;
+            dots = (dots % 4) + 1; // 1-3个点循环
+        }, 500);
+    }
+
+    // 隐藏加载动画
+    function hideLoading() {
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        loadingIndicator.style.display = 'none';
+
+        // 清除计时器
+        if (loadingInterval) {
+            clearInterval(loadingInterval);
+            loadingInterval = null;
+        }
+    }
+
+    // 知识库问答功能
+    document.getElementById('sendBtn').addEventListener('click', async function () {
+        if (!validateQaInput()) {
+            alert('请确保每个有问题的行都填写了回答');
+            return;
+        }
+
+        const userId = document.getElementById('chatUserId').value;
+        const kbId = document.getElementById('kbId').value;
+        const query = document.getElementById('query').value;
+        const stream = document.getElementById('stream').checked;
+        const modelName = document.getElementById('modelName').value;
+        const temperature = parseFloat(document.getElementById('temperature').value);
+        const limit = parseInt(document.getElementById('limit').value);
+
+        showLoading(); // 显示加载动画
+        document.getElementById('chatHistory').innerHTML += '<div class="loading">用户提问: ' + query + '</div>';
+
+        try {
+            const body = {
+                user_id: userId,
+                kbId: kbId,
+                query: query,
+                history: chatHistory,
+                stream: stream,
+                modelName: modelName,
+                temperature: temperature,
+                limit: limit,
+                que_ans: que_ans
+            };
+
+            if (stream) {
+                // 流式请求处理
+                const processedQueAns = que_ans.map(item => item || "");
+
+                // 确保空数组正确序列化
+                const queAnsParam = processedQueAns.length === 0 ? "[]" : JSON.stringify(processedQueAns);
+
+                const params = new URLSearchParams({
+                    user_id: parseInt(userId),
+                    kbId: kbId || '',
+                    query: query,
+                    history: JSON.stringify(chatHistory),
+                    stream: 'true',
+                    modelName: modelName,
+                    temperature: temperature,
+                    limit: limit,
+                    que_ans: queAnsParam // 传递正确序列化的que_ans
+                });
+                const eventSource = new EventSource(`http://222.30.145.22:8100/knowledge_base_chat_with_hra/?${params}`);
+
+                // 创建闭包管理状态
+                const createEventHandler = () => {
+                    let updateTimer = null;
+                    let questionTimer = null;
+
+                    return function (event) {
+                        const data = processSseData(event.data);
+                        if (!data) return;
+
+                        switch (data.type) {
+                            case "answer_chunk":
+                                currentStreamingData.answer += data.content;
+                                clearTimeout(updateTimer);
+                                updateTimer = setTimeout(() => {
+                                    // 只保留最新的流式消息
+                                    const historyDiv = document.getElementById('chatHistory');
+                                    const lastAssistantMessage = historyDiv.querySelector('.message.assistant-message:last-child');
+                                    if (lastAssistantMessage && lastAssistantMessage.classList.contains('stream')) {
+                                        lastAssistantMessage.innerHTML = `<strong>助手:</strong> ${currentStreamingData.answer}`;
+                                    } else {
+                                        addMessageToHistory('assistant', currentStreamingData.answer, 'stream');
+                                    }
+                                }, 500);
+                                break;
+
+                            case "final_questions":
+                                // 绑定完整问题到表单
+                                if (data.content && data.content.data && Array.isArray(data.content.data.que_ans)) {
+                                    bindQueAnsToForm(data.content.data.que_ans);
+                                }
+
+                                // 添加最终问题消息（直接显示完整问题）
+                                if (data.content && data.content.message) {
+                                    addMessageToHistory('system', data.content.message);
+
+                                    // 额外显示生成的问题列表
+                                    if (data.content.data && Array.isArray(data.content.data.que_ans)) {
+                                        const questionsList = data.content.data.que_ans.map((q, i) => `${i + 1}. ${q}`).join('<br>');
+                                        addMessageToHistory('system', questionsList);
+                                    }
+                                }
+
+                                currentStreamingData.questions = "";
+                                break;
+
+                            case "final_files":
+                                // 确保在添加最终消息前取消之前的定时器
+                                clearTimeout(updateTimer);
+                                clearTimeout(questionTimer);
+
+                                // 添加最终回答
+                                addMessageToHistory('assistant', currentStreamingData.answer);
+
+                                // 添加关联文件信息
+                                if (data.content) {
+                                    addMessageToHistory('system', `关联文件: ${JSON.stringify(data.content)}`);
+                                }
+
+                                currentStreamingData.answer = "";
+                                eventSource.close();
+                                hideLoading();
+                                break;
+
+                            case "error":
+                                // 确保在添加错误消息前取消之前的定时器
+                                clearTimeout(updateTimer);
+                                clearTimeout(questionTimer);
+
+                                // 添加错误消息
+                                addMessageToHistory('system', data.content);
+
+                                // 重置状态
+                                currentStreamingData.answer = "";
+                                currentStreamingData.questions = "";
+                                eventSource.close();
+                                hideLoading();
+                                break;
+                        }
+                    };
+                };
+
+                eventSource.onmessage = createEventHandler();
+
+                eventSource.onerror = function (error) {
+                    console.error('EventSource failed:', error);
+                    hideLoading();
+
+                    // 提供更详细的错误信息
+                    let errorMessage = '连接出错';
+                    if (error && error.message) {
+                        errorMessage += ': ' + error.message;
+                    } else {
+                        errorMessage += ': 未知错误';
+                    }
+
+                    //addMessageToHistory('system', errorMessage);
+                    eventSource.close();
+                };
+
+            } else {
+                // 非流式请求处理
+                const response = await fetch('http://222.30.145.22:8100/knowledge_base_chat_with_hra/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (!response.ok) throw new Error('请求失败');
+                const answer = await response.text();
+
+                try {
+                    let jsonData;
+                    try {
+                        jsonData = JSON.parse(answer);
+                        const responseAnswer = jsonData.response && jsonData.response.answer
+                            ? jsonData.response.answer
+                            : jsonData.answer || answer;
+
+                        if (jsonData.data && jsonData.data.que_ans) {
+                            bindQueAnsToForm(jsonData.data.que_ans);
+                        }
+
+                        const formattedAnswer = formatHealthAnswer(responseAnswer);
+                        addMessageToHistory('assistant', formattedAnswer);
+
+                    } catch (parseError) {
+                        console.warn('响应解析失败，作为纯文本处理', parseError);
+                        const formattedAnswer = formatHealthAnswer(answer);
+                        addMessageToHistory('assistant', formattedAnswer);
+                    }
+                } catch (error) {
+                    console.error('响应处理失败:', error);
+                    console.log('原始响应:', answer);
+                    addMessageToHistory('assistant', '抱歉，无法解析服务器响应');
+                } finally {
+                    hideLoading();
+                }
+            }
+
+            addMessageToHistory('user', query);
+            chatHistory.push({role: 'user', content: query});
+        } catch (error) {
+            hideLoading();
+            addMessageToHistory('system', `错误: ${error.message}`);
+        }
+    });
+
+    // 清除对话历史
+    document.getElementById('clearHistoryBtn').addEventListener('click', function () {
+        chatHistory = [];
+        document.getElementById('chatHistory').innerHTML = '';
+    });
+
+    // 向对话历史添加消息
+    function addMessageToHistory(role, content, type = 'full') {
+        const historyDiv = document.getElementById('chatHistory');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${role}-message`;
+
+        if (role === 'user') {
+            messageDiv.innerHTML = `<strong>用户:</strong> ${content}`;
+        } else if (role === 'assistant') {
+            if (type === 'stream') {
+                messageDiv.innerHTML = `<strong>助手:</strong> ${content}`;
+            } else {
+                messageDiv.innerHTML = `<div><strong>助手:</strong> ${content}</div>`;
+            }
+        } else {
+            messageDiv.innerHTML = `<em>${content}</em>`;
+        }
+
+        historyDiv.appendChild(messageDiv);
+        historyDiv.scrollTop = historyDiv.scrollHeight;
+    }
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function () {
+        openTab({currentTarget: document.querySelector('.tablinks:first-child')}, 'file-upload');
+        initQaRows();
+    });
+</script>
+</body>
+</html>
